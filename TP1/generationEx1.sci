@@ -6,7 +6,6 @@ end
 
 u = rand(n, 1, 'uniform');
 x = log(u);
-x = - gsort(-x);
 
 t = linspace(min(x), 0, n);
 f = zeros(n, 1);
@@ -16,6 +15,6 @@ for i = 1:n
 end
 
 plot(t, f, 'r--');
-plot(t, exp(x), 'b');
+plot(t, exp(t), 'b');
 
 endfunction
