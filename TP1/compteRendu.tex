@@ -1,0 +1,348 @@
+% !TEX encoding = IsoLatin
+\documentclass{article}
+\usepackage[french]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+
+\usepackage[hmarginratio=1:1,top=32mm,columnsep=20pt]{geometry}
+\usepackage{multirow}
+\usepackage{multicol}
+\usepackage{abstract}
+\usepackage{fancyhdr}
+\usepackage{float}
+
+\usepackage[colorlinks=true,linkcolor=red,urlcolor=blue,filecolor=green]{hyperref}
+
+\usepackage{dtklogos}
+\usepackage{pbox}
+\usepackage{caption}
+\usepackage{mathtools}
+\usepackage{listings}
+\usepackage{mathrsfs}
+
+\pagestyle{fancy}
+\fancyhead{}
+\fancyfoot{}
+\fancyhead[C]{RO05 Automne 2014 - TP1}
+\fancyfoot[RO, LE]{\thepage}
+
+\newcommand{\bfx}{\mathbf(x)}
+\newcommand{\transp}{^{\mathrm{t}}}
+
+%-------------------------------------------------------------------------------
+
+\title{RO05 TP1}
+
+\author{Julien Amalfi, Benjamin Fradet}
+\date{\today}
+
+%-------------------------------------------------------------------------------
+
+\begin{document}
+\maketitle
+\thispagestyle{fancy}
+
+%-------------------------------------------------------------------------------
+
+\begin{abstract}
+
+    Au cours de ce TP, nous aurons l'occasion de générer des réalisations
+    selon plusieurs lois: loi gaussienne, loi de Weibull, loi de Poisson, etc à
+    partir de réalisations de nombres pseudo-aléatoires suivant
+    $\mathcal{U}([0, 1])$.
+
+\end{abstract}
+
+%-------------------------------------------------------------------------------
+
+\begin{multicols}{2}
+
+\section{Introduction}\label{sec:intro}
+
+Dans une première partie, nous définirons la fonction de répartition empirique.
+Ensuite, nous générerons des réalisations de différentes lois grâce à
+différentes techniques. Enfin, nous explorerons l'approximation de la loi
+binomiale par la loi de Poisson.
+
+%-------------------------------------------------------------------------------
+
+\section{Exercice 1}\label{sec:ex1}
+
+On a:
+
+\begin{equation}
+    \begin{split}
+        \hat{F}_n(x) &= \frac{Card\{x_i \leq x; 1 \leq i \leq n\}}{n}, \forall x \in \mathbb{R} \\
+                     &= \frac{1}{n} \times \sum_{i = 1}^{n} \mathbf{1}_{\{x_i \leq x\}}
+    \end{split}
+\end{equation}
+
+En appliquant la loi des grands nombres, on trouve que:
+
+\begin{equation}
+    \begin{split}
+        \hat{F}_n(x) &\to \mathbb{E}[\mathbf{1}_{\{x_i \leq x\}}]\text{, presque sûrement}\\
+                     &\to 1 \times \mathbb{P}(\mathbf{1}_{\{x_i \leq x\}} = 1) + 0 \times \mathbb{P}(\mathbf{1}_{\{x_i \leq x\}} = 0)\\
+                     &\to \mathbb{P}(\mathbf{1}_{\{x_i \leq x\}} = 1)\\
+                     &\to \mathbb{P}(x_i \leq x)\\
+                     &\to F(x)
+    \end{split}
+\end{equation}
+
+Etant donné que les $x_i$ sont générés à partir des $ln(u_i)$, on peut supposer
+que $F^{-1}(x) = ln(x)$ et donc, trivialement, que $F(x) = exp(x)$.
+
+Si on génère $n = 200$ réalisations de la loi $\mathcal{U}([0, 1])$ et qu'on
+leur applique la transformation $x_i = ln(u_i)$ et si l'on trace $F$ et
+$\hat{F}_n$, on obtient:
+
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[width=0.5\textwidth]{200n.png}
+        \centering
+        \captionsetup{justification=centering}
+        \caption{\label{fig:200n}Comparaison entre fonction de répartition théorique et empirique pour $n = 200$}
+    \end{center}
+\end{figure}
+
+On peut voir en rouge la fonction de répartition empirique et en bleu la
+fonction de répartition théorique.
+
+Si on répète l'expérience, en reprenant les mêmes codes couleurs, avec
+$n = 1000$:
+
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[width=0.5\textwidth]{1000n.png}
+        \centering
+        \captionsetup{justification=centering}
+        \caption{\label{fig:1000n}Comparaison entre fonction de répartition théorique et empirique pour $n = 1000$}
+    \end{center}
+\end{figure}
+
+Enfin, avec $n = 10000$:
+
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[width=0.5\textwidth]{10000n.png}
+        \centering
+        \captionsetup{justification=centering}
+        \caption{\label{fig:10000n}Comparaison entre fonction de répartition théorique et empirique pour $n = 10000$}
+    \end{center}
+\end{figure}
+
+On voit que plus $n$ grandit, plus la fonction de répartition empirique se
+rapproche à la fonction de répartition théorique, conséquence directe de la
+définition de $\hat{F}_n$ (à élaborer).
+
+%-------------------------------------------------------------------------------
+
+\section{Exercice 2}\label{sec:ex2}
+
+\subsection{$X_1 \sim \mathcal{P}(3)$}\label{subsec:ex21}
+
+Pour la génération de réalisations de la loi de Poisson, on utilise le résultat
+suivant:
+
+Si $(E_i)_{i \in \mathbb{N}^*} \sim \mathcal{E}(1)$ alors
+\begin{equation}
+    X = inf\{n \geq 0 \,|\, \sum_{i = 1}^{n + 1} E_i > \lambda\} \sim
+        \mathcal{P}(\lambda)
+\end{equation}
+Donc, si $(U_i)_{i \in \mathbb{N}^*} \sim \mathcal{U}([0, 1])$ alors
+\begin{equation}
+    X = inf\{n \geq 0 \,|\, \prod_{i = 1}^{n + 1} U_i < \mathrm{e}^{-\lambda}\}
+        \sim \mathcal{P}(\lambda)
+\end{equation}
+
+On génère donc des réalisations de $\mathcal{U}([0, 1])$ que l'on multiplie
+entre elles jusqu'à ce que le résultat soit inférieur à $\mathrm{e}^{-\lambda}$
+et la réalisation de la loi de Poisson sera le nombre de multiplications
+effectué.
+
+On applique la même technique que dans ~\ref{sec:ex1} pour calculer la fonction
+de répartition empirique que l'on trace en rouge. De plus, on trace aussi la
+fonction de répartition empirique obtenue à partir de réalisations faites
+directement par scilab à l'aide de \texttt{grand} en bleu. Enfin, on trace la
+fonction de répartition théorique en noir.
+
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[width=0.5\textwidth]{poisson.png}
+        \centering
+        \captionsetup{justification=centering}
+        \caption{\label{fig:poisson}Comparaison entre fonctions de répartition théorique et empiriques de la loi de Poisson $\lambda = 3$ à partir de $n = 500$ réalisations}
+    \end{center}
+\end{figure}
+
+On voit que la fonction de répartition empirique calculée à partir des
+réalisations faites par Scilab semble plus se rapprocher de la fonction de
+répartition théorique. Ceci est peut-être dû au fait que Scilab utilise une
+technique plus adaptée pour générer des réalisations de la loi de Poisson que
+l'approximation par lois exponentielles.
+
+\subsection{$X_2 \in \{-1, 0, 1\} \,|\, \mathbb{P}(X_2 = -1) = \mathbb{P}(X_2 = 0) = \mathbb{P}(X_2 = 1)$}\label{subsec:ex22}
+
+Pour cette loi, on génère simplement des réalisations de $\mathcal{U}([0, 1])$
+et on génère:
+
+\begin{itemize}
+    \item $x_2 = -1 \text{ si } u_i \leq \frac{1}{3}$
+    \item $x_2 = 0  \text{ si } \frac{1}{3} \leq u_i \leq \frac{2}{3}$
+    \item $x_2 = 1  \text{ sinon}$
+\end{itemize}
+
+La fonction de répartition théorique, quant à elle, est donnée par:
+
+\begin{itemize}
+    \item $\mathbb{P}(X_2 < -1) = 0$
+    \item $\mathbb{P}(X_2 \leq -1) = \mathbb{P}(X_2 = -1) = \frac{1}{3}$
+    \item $\mathbb{P}(X_2 \leq 0) = \mathbb{P}(X_2 \leq -1) +
+        \mathbb{P}(X_2 = 0) = \frac{1}{3} + \frac{1}{3} = \frac{2}{3}$
+    \item $\mathbb{P}(X_2 \leq 1) = \mathbb{P}(X_2 \leq 0) + \mathbb{P}(X_2 = 1)
+        = \frac{2}{3} + \frac{1}{3} = 1$
+\end{itemize}
+
+Etant donné qu'il n'existe pas de fonction Scilab pour générer des réalisations
+de cette loi, on visualise uniquement la fonction de répartition empirique
+calculée à partir de nos réalisations, en pointillés rouges, ainsi que la
+fonction de répartition théorique, en noir.
+
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[width=0.5\textwidth]{oneThird.png}
+        \centering
+        \captionsetup{justification=centering}
+        \caption{\label{fig:oneThird}Comparaison entre fonctions de répartition théorique et empirique d'une loi de probabilité donnée à partir de $n = 500$ réalisations}
+    \end{center}
+\end{figure}
+
+On voit ces deux fonctions de répartitions sont très semblables.
+
+\subsection{$X_3 \sim \mathcal{N}(2, 4)$}\label{subsec:ex23}
+
+Pour ce qui est de la loi nomale, on utilise la méthode de Box-Müller qui, étant
+données deux variables alétoires $U_1$ et $U_2$ suivant $\mathcal{U}([0, 1])$ et
+en définissant $R = \sqrt{-2 ln(U_1)}$ et $\Theta = 2 \pi U_2$, permet de
+générer deux variables aléatoires suivant la loi normale centrée réduite:
+
+\begin{itemize}
+    \item $X_1 = R\cos(\Theta)$
+    \item $X_2 = R\sin(\Theta)$
+\end{itemize}
+
+On génère donc des réalisations de la loi normale centrée-réduite grâce à cette
+méthode. Ensuite, on "dénormalise" ces réalisations en les multipliant par
+l'écart type $\sigma = 4$ et on leur rajoute la moyenne $\mu = 2$, pour obtenir
+des réalisations suivant $\mathcal{N}(2, 4)$.
+
+En plus de la fonction de répartition empirique obtenue à partir de ces
+réalisations, affichée en pointillés rouge ci-après, on calcule la fonction de
+répartition empirique pour des réalisations générées à l'aide de la fonction
+Scilab \texttt{grand}, en pointillés bleus. Finalement, on affiche aussi la
+fonction de répartition de la loi normale à l'aide de la fonction
+\texttt{cdfnor}, en noir.
+
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[width=0.5\textwidth]{gaussienne.png}
+        \centering
+        \captionsetup{justification=centering}
+        \caption{\label{fig:gaussienne}Comparaison entre fonctions de répartition théorique et empiriques d'une loi normale $\mu = 2$ et $\sigma = 4$ à partir de $n = 500$ réalisations}
+    \end{center}
+\end{figure}
+
+On voit que nos trois fonctions de répartitions sont quasiment confondues, ce
+qui nous permet de dire que la méthode de Box-Müller semble très bien
+fonctionnée.
+
+\subsection{$X_4 \sim Weibull(3, 3)$}\label{subsec:ex24}
+
+En ce qui concerne la loi de Weibull, on procède par la méthode d'inversion de
+la fonction de répartition:
+
+\begin{equation}
+    \begin{multlined}
+        F(x) = 1 - \mathrm{e}^{-\left({\frac{x}{\lambda}}\right)^k} = y \\
+        1 - y = \mathrm{e}^{-\left({\frac{x}{\lambda}}\right)^k} \\
+        ln(1 - y) = -\left(\frac{x}{\lambda}\right)^k \\
+        (-ln(1 - y))^{\frac{1}{k}} = \frac{x}{\lambda} \\
+        x = \lambda (-ln(1 - y))^{\frac{1}{k}}
+    \end{multlined}
+\end{equation}
+
+On génère donc des réalisations $u_i$ de $U$ suivant $\mathcal{U}([0, 1])$ et on
+leur applique la transformation suivante: $\lambda (-ln(1 - u_i))^{frac{1}{k}}$
+pour obtenir des réalisations de la loi de Weibull de paramètres $\lambda$ et
+$k$.
+
+Etant donné qu'il n'existe pas de fonction Scilab pour générer des réalisations
+suivant la loi de Weibull, on trace uniquement notre fonction de répartition
+empirique, en rouge pointillés, ainsi que la fonction de répartition théorique,
+en noir.
+
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[width=0.5\textwidth]{weibull.png}
+        \centering
+        \captionsetup{justification=centering}
+        \caption{\label{fig:gaussienne}Comparaison entre fonctions de répartition théorique et empirique d'une loi de Weibull $\lambda = 3$ et $k = 3$ à partir de $n = 500$ réalisations}
+    \end{center}
+\end{figure}
+
+On voit que la technique de génération par inversion semble être une bonne
+méthode.
+
+%-------------------------------------------------------------------------------
+
+\section{Exercice 3}\label{sec:ex3}
+
+\subsection{Approximation de $\mathcal{B}(400, 0.0037)$ par $\mathcal{P}(1.48)$}\label{subsec:ex31}
+
+On génère des réalisations suivant ces deux lois grâce à la fonction
+\texttt{grand}. On affiche ensuite un histogramme des réalisations, en rouge les
+réalisations la loi de Poisson et en noir les réalisations de la loi binomiale.
+
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[width=0.5\textwidth]{binPoi1.png}
+        \centering
+        \captionsetup{justification=centering}
+        \caption{\label{fig:binPoi1}Comparaison entre les distributions d'une loi binomiale $n = 400$ et $p = 0.0037$ et d'une loi de Poisson $\lambda = 1.48$}
+    \end{center}
+\end{figure}
+
+On voit que l'approximation semble être correcte lorsque $\lambda = n \times p$.
+
+\subsection{Approximation de $\mathcal{B}(400, 0.039)$ par $\mathcal{P}(15.6)$}\label{subsec:ex31}
+
+On procède de la même manière pour ces distributions, et on obtient:
+
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[width=0.5\textwidth]{binPoi2.png}
+        \centering
+        \captionsetup{justification=centering}
+        \caption{\label{fig:binPoi2}Comparaison entre les distributions d'une loi binomiale $n = 400$ et $p = 0.039$ et d'une loi de Poisson $\lambda = 15.6$}
+    \end{center}
+\end{figure}
+
+Là aussi, l'approximation semble être correcte.
+
+%-------------------------------------------------------------------------------
+
+\section{Conclusion}\label{sec:conclu}
+
+ex3 -> avec n plus grand
+
+%-------------------------------------------------------------------------------
+
+%-------------------------------------------------------------------------------
+
+\end{multicols}
+\end{document}
