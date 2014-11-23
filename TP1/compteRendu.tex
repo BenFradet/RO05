@@ -110,7 +110,7 @@ $\hat{F}_n$, on obtient:
     \end{center}
 \end{figure}
 
-On peut voir en rouge la fonction de répartition empirique et en bleu la
+On peut voir, en rouge, la fonction de répartition empirique et, en bleu, la
 fonction de répartition théorique.
 
 Si on répète l'expérience, en reprenant les mêmes codes couleurs, avec
@@ -138,7 +138,7 @@ Enfin, avec $n = 10000$:
 
 On voit que plus $n$ grandit, plus la fonction de répartition empirique se
 rapproche à la fonction de répartition théorique, conséquence directe de la
-définition de $\hat{F}_n$ (à élaborer).
+loi directe des grands nombres.
 
 %-------------------------------------------------------------------------------
 
@@ -168,7 +168,7 @@ effectué.
 On applique la même technique que dans ~\ref{sec:ex1} pour calculer la fonction
 de répartition empirique que l'on trace en rouge. De plus, on trace aussi la
 fonction de répartition empirique obtenue à partir de réalisations faites
-directement par scilab à l'aide de \texttt{grand} en bleu. Enfin, on trace la
+directement par Scilab à l'aide de \texttt{grand} en bleu. Enfin, on trace la
 fonction de répartition théorique en noir.
 
 \begin{figure}[H]
@@ -184,7 +184,7 @@ On voit que la fonction de répartition empirique calculée à partir des
 réalisations faites par Scilab semble plus se rapprocher de la fonction de
 répartition théorique. Ceci est peut-être dû au fait que Scilab utilise une
 technique plus adaptée pour générer des réalisations de la loi de Poisson que
-l'approximation par lois exponentielles.
+la méthode que nous avons choisie.
 
 \subsection{$X_2 \in \{-1, 0, 1\} \,|\, \mathbb{P}(X_2 = -1) = \mathbb{P}(X_2 = 0) = \mathbb{P}(X_2 = 1)$}\label{subsec:ex22}
 
@@ -277,13 +277,13 @@ la fonction de répartition:
 \end{equation}
 
 On génère donc des réalisations $u_i$ de $U$ suivant $\mathcal{U}([0, 1])$ et on
-leur applique la transformation suivante: $\lambda (-ln(1 - u_i))^{frac{1}{k}}$
+leur applique la transformation suivante: $\lambda (-ln(1 - u_i))^{\frac{1}{k}}$
 pour obtenir des réalisations de la loi de Weibull de paramètres $\lambda$ et
 $k$.
 
 Etant donné qu'il n'existe pas de fonction Scilab pour générer des réalisations
 suivant la loi de Weibull, on trace uniquement notre fonction de répartition
-empirique, en rouge pointillés, ainsi que la fonction de répartition théorique,
+empirique, en pointillés rouges, ainsi que la fonction de répartition théorique,
 en noir.
 
 \begin{figure}[H]
@@ -338,9 +338,14 @@ Là aussi, l'approximation semble être correcte.
 
 \section{Conclusion}\label{sec:conclu}
 
-ex3 -> avec n plus grand
+En conclusion, ce TP nous aura permis d'appréhender différentes techniques de
+génération de nombres alétoires.
 
-%-------------------------------------------------------------------------------
+Pour aller plus loin, on aurait pu essayer de générer des réalisations à l'aide
+de la méthode de rejet que nous n'avons pas utilisée ici.
+On aurait pu aussi examiner le comportement de l'approximation de la loi
+binomiale par la loi de Poisson pour $n \gg 400$ dans le but de voir si
+l'approximation se révèle meilleure.
 
 %-------------------------------------------------------------------------------
 
