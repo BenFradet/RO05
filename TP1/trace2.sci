@@ -10,7 +10,8 @@ function[] = draw(n, lambda, p, bins, fig)
         x(i) = mini + i * offset;
     end
 
-    figure(fig);
+    f = figure(fig);
+    f.background = -2;
     histplot(x, poisson, style = 5);
     histplot(x, binom);
 endfunction
