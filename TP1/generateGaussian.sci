@@ -4,7 +4,12 @@ function[x] = generateGaussian(mu, sigma, n)
         error('wrong n');
     end
 
-    u = rand(n, 1, 'uniform');
-    x = mu + sqrt(2) * sigma * erfinv(2 * u - 1);
+    u1 = rand(n, 1, 'uniform');
+    u2 = rand(n, 1, 'uniform');
+    r = sqrt(-2 * log(u1));
+    sig = 2 * %pi * u2;
+    x = r .* sin(sig);
+    x = x * sigma;
+    x = x + mu;
 
 endfunction
