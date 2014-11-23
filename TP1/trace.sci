@@ -11,14 +11,14 @@ function[] = trace()
     mu = 2;
     sigma = 4;
     alpha = 3;
-    alpha = 3;
+    beta = 3;
 
     poisson = generatePoisson(lambda, n);
     sPoisson = grand(n, 1, 'poi', lambda);
     oneThird = generateOneThird(n);
     gaussian = generateGaussian(mu, sigma, n);
     sGaussian = grand(n, 1, 'nor', mu, sigma);
-    weibull = generateWeibull(3, 3, n);
+    weibull = generateWeibull(alpha, beta, n);
 
     // poisson plot
     xPoisson = linspace(min(poisson), max(poisson), n);
@@ -38,10 +38,13 @@ function[] = trace()
         f3Poisson = [f3Poisson sum(d3Poisson(1:i))];
     end
 
-    figure(0);
-    plot(xPoisson, f1Poisson, 'r--');
+    f = figure(0);
+    f.background = -2;
+    gc = gca();
+    gc.data_bounds = [1, 0; 11, 1];
+    plot(xPoisson, f1Poisson, 'r');
     plot(xPoisson, f2Poisson, 'b');
-    plot(x2Poisson, f3Poisson, 'k:');
+    plot(x2Poisson, f3Poisson, 'k');
 
     // third plot
     xThird = linspace(min(oneThird) - 1, max(oneThird) + 1, n);
@@ -49,11 +52,15 @@ function[] = trace()
     for i = 1:n
         f1Third(i) = size(find(oneThird <= xThird(i)), 2) / n;
     end
-    figure(1);
+    f = figure(1);
+    f.background = -2;
     gc = gca();
     gc.data_bounds = [min(oneThird) - 1, min(f1Third) - 0.2; ...
         max(oneThird) + 1, max(f1Third) + 0.2];
-    plot(xThird, f1Third, 'b');
+    x = [-2, -1, -1, 0, 0, 1, 1, 2];
+    y = [0, 0, 1 / 3, 1 / 3, 2 / 3, 2 / 3, 1, 1];
+    plot(xThird, f1Third, 'r--');
+    xpoly(x, y);
 
     // gaussian plot
     xGaussian = linspace(min(gaussian), max(gaussian), n);
@@ -65,20 +72,22 @@ function[] = trace()
     end
     f3Gaussian = cdfnor("PQ", xGaussian, mu * ones(xGaussian), ...
         sigma * ones(xGaussian));
-    figure(2);
+    f = figure(2);
+    f.background = -2;
     plot(xGaussian, f1Gaussian, 'r--');
-    plot(xGaussian, f2Gaussian, 'b');
-    plot(xGaussian, f3Gaussian, 'k:');
+    plot(xGaussian, f2Gaussian, 'b:');
+    plot(xGaussian, f3Gaussian, 'k');
 
     // weibull plot
-    xWeibull = linespace(min(weibull), max(weibull), n);
+    xWeibull = linspace(min(weibull), max(weibull), n);
     f1Weibull = zeros(1:n);
     for i = 1:n
         f1Weibull(i) = size(find(weibull <= xWeibull(i)), 2) / n;
     end
-    f2Weibull = 1 - exp(-(xWeibull / beta) ^ alpha);
-    figure(3);
+    f2Weibull = 1 - exp(-(xWeibull ./ beta) .^ alpha);
+    f = figure(3);
+    f.background = -2;
     plot(xWeibull, f1Weibull, 'r--');
-    plot(xWeibull, f2Weibull, 'b');
+    plot(xWeibull, f2Weibull, 'k');
 
 endfunction
