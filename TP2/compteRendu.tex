@@ -1,0 +1,201 @@
+% !TEX encoding = IsoLatin
+\documentclass{article}
+\usepackage[french]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+
+\usepackage[hmarginratio=1:1,top=32mm,columnsep=20pt]{geometry}
+\usepackage{multirow}
+\usepackage{multicol}
+\usepackage{abstract}
+\usepackage{fancyhdr}
+\usepackage{float}
+
+\usepackage[colorlinks=true,linkcolor=red,urlcolor=blue,filecolor=green]{hyperref}
+
+\usepackage{dtklogos}
+\usepackage{pbox}
+\usepackage{caption}
+\usepackage{mathtools}
+\usepackage{listings}
+\usepackage{mathrsfs}
+
+\pagestyle{fancy}
+\fancyhead{}
+\fancyfoot{}
+\fancyhead[C]{RO05 Automne 2014 - TP2}
+\fancyfoot[RO, LE]{\thepage}
+
+\newcommand{\bfx}{\mathbf(x)}
+\newcommand{\transp}{^{\mathrm{t}}}
+
+%-------------------------------------------------------------------------------
+
+\title{RO05 TP2}
+
+\author{Julien Amalfi, Benjamin Fradet}
+\date{\today}
+
+%-------------------------------------------------------------------------------
+
+\begin{document}
+\maketitle
+\thispagestyle{fancy}
+
+%-------------------------------------------------------------------------------
+
+\begin{abstract}
+
+    Comme lors du premier TP, nous etudierons la generation de nombre
+    aleatoires, cette fois-ci plus particulierement pour les lois de Weibull et
+    de Cauchy.
+
+\end{abstract}
+
+%-------------------------------------------------------------------------------
+
+\begin{multicols}{2}
+
+\section{Introduction}\label{sec:intro}
+
+Dans une premiere partie, nous etudierons la loi de Weibull en generant des
+realisations par la methode d'inversion, puis nous utiliserons ces realistions
+pour approximer une integrale. Ensuite, nous simulerons des realisations d'une
+loi de probabilite atypique. Enfin, nous nous pencherons sur la loi de Cauchy
+et pourquoi elle ne verifie pas la loi forte des grands nombres.
+
+%-------------------------------------------------------------------------------
+
+\section{Exercice 1}\label{sec:ex1}
+
+\subsection{Generation de $n = 1000$ realisations de $X \sim Weibull(4, 1)$}\label{subsec:ex11}
+
+On procede par inversion:
+
+\begin{equation}
+    \begin{multlined}
+        F(x) = 1 - \mathrm{e}^{-\left({\frac{x}{\lambda}}\right)^k} = y \\
+        1 - y = \mathrm{e}^{-\left({\frac{x}{\lambda}}\right)^k} \\
+        ln(1 - y) = -\left(\frac{x}{\lambda}\right)^k \\
+        (-ln(1 - y))^{\frac{1}{k}} = \frac{x}{\lambda} \\
+        x = \lambda (-ln(1 - y))^{\frac{1}{k}}
+    \end{multlined}
+\end{equation}
+
+On génère donc des réalisations $u_i$ de $U$ suivant $\mathcal{U}([0, 1])$ et on
+leur applique la transformation suivante: $\lambda (-ln(1 - u_i))^{\frac{1}{k}}$
+pour obtenir des réalisations de la loi de Weibull de paramètres $\lambda$ et
+$k$.
+
+On trace donc la fonction de repartition empirique, a l'aide de ces realisations
+ainsi que la fonction de repartition theorique.
+
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[width=0.5\textwidth]{weibull.png}
+        \centering
+        \captionsetup{justification=centering}
+        \caption{\label{fig:weibull}Comparaison entre fonctions de répartition théorique et empirique de la loi de Weibull $\alpha = 4$ $\beta = 1$ à partir de $n = 1000$ réalisations}
+    \end{center}
+\end{figure}
+
+On peut voir la fonction de repartition empirique en rouge pointilles ainsi que
+la fonction de repartition theorique en noir.
+
+\subsection{Calcul de la densite de la distribution de Weibull}\label{subsec:ex12}
+
+On derive tout simplement la fonction de repartition:
+
+\begin{equation}
+    \begin{split}
+        f(x) &= F'(x) \\
+             &= \frac{\alpha}{\beta}\left(\frac{x}{\beta}\right)^{\alpha - 1}\mathrm{e}^{-\left(\frac{x}{\beta}\right)^{\alpha}} \\
+             &= 4 x^3 \mathrm{e}^{-x^4}
+    \end{split}
+\end{equation}
+
+\subsection{Calcul de $I = \int_0^{+\infty} x^6 \mathrm{e}^{-x^4} dx$}\label{subsec:ex13}
+
+On s'aide de la methode de Monte-Carlo, qui nous dit que, si on pose
+$g(x) = \frac{x^2}{4}$ et $f(x) = 4 x^3 \mathrm{e}^{-x^4}$, on a:
+
+\begin{equation}
+    \begin{split}
+        I &= \int_0^{+\infty} x^6 \mathrm{e}^{-x^4} dx \\
+          &= \int_0^{+\infty} f(x) g(x) dx \\
+          &= \mathbb{E}(g(X))
+    \end{split}
+\end{equation}
+
+Ici, la loi forte des grands nombres nous permet d'affirmer que:
+
+\begin{equation}
+    \frac{1}{n} \sum_{i = 1}^n g(X_i) \to \mathbb{E}(g(X)) \text{, presque surement}
+\end{equation}
+
+On applique donc $g$ a nos realisations et on en fait la moyenne pour obtenir
+notre resultat. On obtient 0.219 pour $n = 100$ et 0.215 pour $n = 1000$.
+
+%-------------------------------------------------------------------------------
+
+\section{Exercice 2}\label{sec:ex2}
+
+\subsection{$f$ densite}\label{subsec:ex21}
+
+Pour montrer que $f$ est une densite on l'integre sur $]-\infty, +\infty[$ et on
+verifie que l'on obtient bien 1:
+
+\begin{equation}
+    \begin{split}
+        \int_{-\infty}^{+\infty} f(x) dx
+        &= \int_{-\infty}^{+\infty} \frac{1}{\pi \sqrt{1 - x^2}} 1_{]-1, 1[}(x) dx \\
+        &= \int_{-1}^{+1} \frac{1}{\pi \sqrt{1 - x^2}} dx \\
+        &= \frac{1}{\pi} \int_{-1}^{+1} \frac{1}{\sqrt{1 - x^2}} dx \\
+        &= \frac{1}{\pi} [arcsin(x)]_{-1}^{+1} \\
+        &= \frac{1}{\pi} \left(\frac{\pi}{2} - \left(\frac{-\pi}{2}\right)\right) \\
+        &= 1
+    \end{split}
+\end{equation}
+
+On peut donc en deduire que $f$ est une densite.
+
+%-------------------------------------------------------------------------------
+
+\section{Exercice 3}\label{sec:ex3}
+
+\subsection{Approximation de $\mathcal{B}(400, 0.0037)$ par $\mathcal{P}(1.48)$}\label{subsec:ex31}
+
+On génère des réalisations suivant ces deux lois grâce à la fonction
+\texttt{grand}. On affiche ensuite un histogramme des réalisations, en rouge les
+réalisations la loi de Poisson et en noir les réalisations de la loi binomiale.
+
+On voit que l'approximation semble être correcte lorsque $\lambda = n \times p$.
+
+\subsection{Approximation de $\mathcal{B}(400, 0.039)$ par $\mathcal{P}(15.6)$}\label{subsec:ex31}
+
+On procède de la même manière pour ces distributions, et on obtient:
+
+Là aussi, l'approximation semble être correcte.
+
+%-------------------------------------------------------------------------------
+
+\section{Conclusion}\label{sec:conclu}
+
+En conclusion, ce TP nous aura permis d'appréhender différentes techniques de
+génération de nombres alétoires.
+
+Pour aller plus loin, on aurait pu essayer de générer des réalisations à l'aide
+de la méthode de rejet que nous n'avons pas utilisée ici.
+On aurait pu aussi examiner le comportement de l'approximation de la loi
+binomiale par la loi de Poisson pour $n \gg 400$ dans le but de voir si
+l'approximation se révèle meilleure.
+
+%-------------------------------------------------------------------------------
+
+\end{multicols}
+\end{document}
