@@ -51,8 +51,8 @@
 
 \begin{abstract}
 
-    Comme lors du premier TP, nous etudierons la generation de nombre
-    aleatoires, cette fois-ci plus particulierement pour les lois de Weibull et
+    Comme lors du premier TP, nous étudierons la génération de nombre
+    aléatoires, cette fois-ci plus particulièrement pour les lois de Weibull et
     de Cauchy.
 
 \end{abstract}
@@ -63,19 +63,20 @@
 
 \section{Introduction}\label{sec:intro}
 
-Dans une premiere partie, nous etudierons la loi de Weibull en generant des
-realisations par la methode d'inversion, puis nous utiliserons ces realistions
-pour approximer une integrale. Ensuite, nous simulerons des realisations d'une
-loi de probabilite atypique. Enfin, nous nous pencherons sur la loi de Cauchy
-et pourquoi elle ne verifie pas la loi forte des grands nombres.
+Dans une première partie, nous étudierons la loi de Weibull en générant des
+réalisations par la méthode d'inversion, puis nous utiliserons ces réalistions
+pour approximer une intégrale par la méthode de Monte-Carlo. Ensuite, nous
+simulerons des réalisations d'une loi de probabilité atypique. Enfin, nous nous
+pencherons sur la loi de Cauchy et pourquoi elle ne vérifie pas la loi forte des
+grands nombres.
 
 %-------------------------------------------------------------------------------
 
 \section{Exercice 1}\label{sec:ex1}
 
-\subsection{Generation de $n = 1000$ realisations de $X \sim Weibull(4, 1)$}\label{subsec:ex11}
+\subsection{Génération de $n = 1000$ réalisations de $X \sim Weibull(4, 1)$}\label{subsec:ex11}
 
-On procede par inversion:
+On procède par inversion:
 
 \begin{equation}
     \begin{multlined}
@@ -87,13 +88,13 @@ On procede par inversion:
     \end{multlined}
 \end{equation}
 
-On génère donc des réalisations $u_i$ de $U$ suivant $\mathcal{U}([0, 1])$ et on
+On génère donc des réalisations $u_i$ de $U \sim \mathcal{U}([0, 1])$ et on
 leur applique la transformation suivante: $\lambda (-ln(1 - u_i))^{\frac{1}{k}}$
 pour obtenir des réalisations de la loi de Weibull de paramètres $\lambda$ et
 $k$.
 
-On trace donc la fonction de repartition empirique, a l'aide de ces realisations
-ainsi que la fonction de repartition theorique.
+On trace donc la fonction de répartition empirique, à l'aide de ces
+réalisations, ainsi que la fonction de répartition théorique.
 
 \begin{figure}[H]
     \begin{center}
@@ -104,12 +105,12 @@ ainsi que la fonction de repartition theorique.
     \end{center}
 \end{figure}
 
-On peut voir la fonction de repartition empirique en rouge pointilles ainsi que
-la fonction de repartition theorique en noir.
+On peut voir la fonction de répartition empirique en pointillés rouges ainsi que
+la fonction de répartition théorique en noir.
 
-\subsection{Calcul de la densite de la distribution de Weibull}\label{subsec:ex12}
+\subsection{Calcul de la densité de la distribution de Weibull}\label{subsec:ex12}
 
-On derive tout simplement la fonction de repartition:
+On dérive tout simplement la fonction de répartition:
 
 \begin{equation}
     \begin{split}
@@ -121,7 +122,7 @@ On derive tout simplement la fonction de repartition:
 
 \subsection{Calcul de $I = \int_0^{+\infty} x^6 \mathrm{e}^{-x^4} dx$}\label{subsec:ex13}
 
-On s'aide de la methode de Monte-Carlo, qui nous dit que, si on pose
+On s'aide de la méthode de Monte-Carlo, qui nous dit que, si on pose
 $g(x) = \frac{x^2}{4}$ et $f(x) = 4 x^3 \mathrm{e}^{-x^4}$, on a:
 
 \begin{equation}
@@ -132,23 +133,37 @@ $g(x) = \frac{x^2}{4}$ et $f(x) = 4 x^3 \mathrm{e}^{-x^4}$, on a:
     \end{split}
 \end{equation}
 
+$X$ étant une variable aléatoire ayant pour densité $f$.
+
 Ici, la loi forte des grands nombres nous permet d'affirmer que:
 
 \begin{equation}
-    \frac{1}{n} \sum_{i = 1}^n g(X_i) \to \mathbb{E}(g(X)) \text{, presque surement}
+    \frac{1}{n} \sum_{i = 1}^n g(X_i) \to \mathbb{E}(g(X)) \text{, presque sûrement}
 \end{equation}
 
-On applique donc $g$ a nos realisations et on en fait la moyenne pour obtenir
-notre resultat. On obtient 0.219 pour $n = 100$ et 0.215 pour $n = 1000$.
+On applique donc $g$ à nos réalisations et on en fait la moyenne pour obtenir
+notre résultat. On obtient 0.219 pour $n = 100$ et 0.215 pour $n = 1000$.
+
+De plus, si on trace l'évolution de cette intégrale en fonction du nombre de
+réalisations générées, on voit qu'elle semble converger:
+
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[width=0.5\textwidth]{intWeibull.png}
+        \centering
+        \captionsetup{justification=centering}
+        \caption{\label{fig:intWeibull}Convergence de l'intégrale en fonction du nombre de réalisations générées pour $n_{max} = 1000$ réalisations}
+    \end{center}
+\end{figure}
 
 %-------------------------------------------------------------------------------
 
 \section{Exercice 2}\label{sec:ex2}
 
-\subsection{$f$ densite}\label{subsec:ex21}
+\subsection{$f$ densité}\label{subsec:ex21}
 
-Pour montrer que $f$ est une densite on l'integre sur $]-\infty, +\infty[$ et on
-verifie que l'on obtient bien 1:
+Pour montrer que $f$ est une densité on l'intègre sur $]-\infty, +\infty[$ et on
+vérifie que l'on obtient bien 1:
 
 \begin{equation}
     \begin{split}
@@ -162,38 +177,135 @@ verifie que l'on obtient bien 1:
     \end{split}
 \end{equation}
 
-On peut donc en deduire que $f$ est une densite.
+On peut donc en déduire que $f$ est une densité.
+
+\subsection{Génération de $n = 1000$ réalisations de $X$}\label{subsec:ex22}
+
+Etant donné que $f$ est une densité, on peut l'intégrer et obtenir la fonction
+de répartition $F$:
+
+\begin{equation}
+    \begin{split}
+        F(x)
+        &= \int_{-\infty}^{x} f(y) dy \\
+        &= \int_{-\infty}^{x} \frac{1}{\pi \sqrt{1 - y^2}} 1_{]-1, 1[}(y) dy \\
+        &= \int_{-1}^{x} \frac{1}{\pi \sqrt{1 - y^2}} dy \\
+        &= \frac{1}{\pi} \int_{-1}^{x} \frac{1}{\sqrt{1 - y^2}} dy \\
+        &= \frac{1}{\pi} [arcsin(y)]_{-1}^{x} \\
+        &= \frac{1}{\pi} \left(arcsin(x) + \frac{\pi}{2}\right) 1_{]-1, 1[}(x)
+    \end{split}
+\end{equation}
+
+On procède par inversion de cette fonction de répartition:
+
+\begin{equation}
+    \begin{split}
+        F(x) &= \frac{arcsin(x)}{\pi} + \frac{1}{2} = y \\
+             & \left(y - \frac{1}{2}\right) \pi = arcsin(x) \\
+             & x = sin\left(\left(y - \frac{1}{2}\right) \pi \right)
+    \end{split}
+\end{equation}
+
+On génère donc $n = 1000$ réalisations $u_i$ de $U \sim \mathcal{U}([0, 1])$ et
+on leur applique la transformation
+$sin\left(\left(u_i - \frac{1}{2}\right) \pi \right)$ pour obtenir des
+réalisations de $X$.
+
+\subsection{Tracé des fonctions de répartitions}\label{subsec:ex23}
+
+Si on trace la fonction de répartition empirique en pointillés rouges et la
+fonction de répartition théorique en noir, on obtient:
+
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[width=0.5\textwidth]{ex2.png}
+        \centering
+        \captionsetup{justification=centering}
+        \caption{\label{fig:ex2}Comparaison entre fonctions de répartition théorique et empirique pour $n = 1000$ réalisations}
+    \end{center}
+\end{figure}
+
+On voit que nos réalisations semblent conformes a la loi de $X$.
 
 %-------------------------------------------------------------------------------
 
 \section{Exercice 3}\label{sec:ex3}
 
-\subsection{Approximation de $\mathcal{B}(400, 0.0037)$ par $\mathcal{P}(1.48)$}\label{subsec:ex31}
+Etant donné la fonction de répartition de la loi de Cauchy, on génère des
+réalisations par la méthode d'inversion:
 
-On génère des réalisations suivant ces deux lois grâce à la fonction
-\texttt{grand}. On affiche ensuite un histogramme des réalisations, en rouge les
-réalisations la loi de Poisson et en noir les réalisations de la loi binomiale.
+\begin{equation}
+    \begin{split}
+        F(x) &= \frac{1}{\pi} arctan\left(\frac{x - x_0}{a}\right) + \frac{1}{2} = y \\
+             & arctan\left(\frac{x - x_0}{a}\right) = \left(y - \frac{1}{2}\right) \pi \\
+             & \frac{x - x_0}{a} = tan\left(\left(y - \frac{1}{2}\right) \pi \right) \\
+             & x = a \, tan\left(\left(y - \frac{1}{2}\right) \pi \right) + x_0
+    \end{split}
+\end{equation}
 
-On voit que l'approximation semble être correcte lorsque $\lambda = n \times p$.
+On choisit de générer $n = 1000$ réalisations de $X \sim Cauchy(1, 0)$ en
+générant $n = 1000$ réalisations $u_i$ de $U \sim \mathcal{U}([0, 1])$ et on
+leur applique la transformation
+$tan\left(\left(u_i - \frac{1}{2}\right) \pi \right)$ pour obtenir des
+réalisations de $X$.
 
-\subsection{Approximation de $\mathcal{B}(400, 0.039)$ par $\mathcal{P}(15.6)$}\label{subsec:ex31}
+On vérifie notre raisonnement en comparant fonction de répartition théorique (en
+noir) et fonction de répartition empirique (en pointillés rouges):
 
-On procède de la même manière pour ces distributions, et on obtient:
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[width=0.5\textwidth]{cauchy.png}
+        \centering
+        \captionsetup{justification=centering}
+        \caption{\label{fig:cauchy}Comparaison entre fonctions de répartition théorique et empirique de la loi de Cauchy $x_0 = 0$ et $a = 1$ a partir $n = 1000$ réalisations}
+    \end{center}
+\end{figure}
 
-Là aussi, l'approximation semble être correcte.
+On voit que nos réalisations semblent véritablement suivre une loi de Cauchy.
+
+La loi forte des grands nombres nous dit que:
+
+\begin{equation}
+    \frac{1}{n} \sum_{i = 1}^{n} x_i \to \mathbb{E}(X) \text{, presque sûrement}
+\end{equation}
+
+Pour voir si la loi de Cauchy vérifie la loi forte des grands nombres, on
+effectue la moyenne empirique des $x_i$ pour chaque $n$. Si on trace ces
+$n = 1000$ moyennes, on obtient:
+
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[width=0.5\textwidth]{cauchyLgn.png}
+        \centering
+        \captionsetup{justification=centering}
+        \caption{\label{fig:cauchyLgn}Divergence de la moyenne empirique des réalisations en fonction du nombre de réalisations générées pour $n = 1000$ réalisations}
+    \end{center}
+\end{figure}
+
+On voit que cette moyenne diverge. En effet, elle "saute" périodiquement, puis
+recommence à converger pour se remettre à diverger.
+
+Ceci s'explique par le fait que l'on génère des $x_i$ à l'aide de la fonction
+$tan$ qui prend des valeurs extrêmes lorsque $u_i$ se rapproche de 1 ou 0.
+
+En conclusion, la loi de Cauchy ne vérifie pas la loi forte des grands nombres
+et n'a donc pas d'espérance.
 
 %-------------------------------------------------------------------------------
 
 \section{Conclusion}\label{sec:conclu}
 
-En conclusion, ce TP nous aura permis d'appréhender différentes techniques de
-génération de nombres alétoires.
+En conclusion, ce TP nous aura permis de voir des applications de la
+génération de nombres aléatoires et, plus particulièrement, l'approximation
+d'intégrale lorsque le calcul de celle-ci est difficile analytiquement. On
+aurait, d'ailleurs, pu calculer un intervalle de confiance sur cette intégrale
+ainsi qu'effectuer des comparaisons avec les méthodes de calculs d'intégrales
+usuelles comme, par exemple, celle du point milieu.
 
-Pour aller plus loin, on aurait pu essayer de générer des réalisations à l'aide
-de la méthode de rejet que nous n'avons pas utilisée ici.
-On aurait pu aussi examiner le comportement de l'approximation de la loi
-binomiale par la loi de Poisson pour $n \gg 400$ dans le but de voir si
-l'approximation se révèle meilleure.
+Enfin, dans le cadre de ~\ref{sec:ex3}, on aurait pu comparer notre méthode de
+génération de réalisations de la loi de Cauchy par inversion avec la méthode
+de Box-Müller car cette méthode permet la génération de deux variables
+aléatoires $X, Y \sim \mathcal{N}(0, 1)$ et $\frac{X}{Y} \sim Cauchy(0, 1)$.
 
 %-------------------------------------------------------------------------------
 
