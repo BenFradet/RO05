@@ -1,5 +1,10 @@
+# report
 *.png
 *.aux
 *.log
 *.out
 *.pdf
+
+# R
+.RData
+.Rhistory
