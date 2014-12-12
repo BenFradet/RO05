@@ -7,26 +7,27 @@ data$Mean.TemperatureF <- round((data$Mean.TemperatureF - 32) * 5 / 9)
 
 colnames(data) <- c('date',
                     'temperature',
-                    'humidite',
-                    'pression',
+                    'humidity',
+                    'pressure',
                     'precipitation',
-                    'nuage',
-                    'temps')
+                    'cloudLevel',
+                    'weather')
 
-levels(data$temps) <- c(levels(data$temps), 'Cloudy', 'Sunny')
-data$temps[data$nuage >= 6 & data$temps == ''] <- 'Cloudy'
-data$temps[data$temps == ''] <- 'Sunny'
-data$temps[data$temps == 'Fog'] <- 'Cloudy'
-data$temps[data$temps == 'Fog-Rain-Snow'] <- 'Snow'
-data$temps[data$temps == 'Fog-Rain-Thunderstorm'] <- 'Rain'
-data$temps[data$temps == 'Rain-Snow'] <- 'Snow'
-data$temps[data$temps == 'Thunderstorm'] <- 'Rain'
-data$temps[data$temps == 'Fog-Rain'] <- 'Rain'
-data$temps[data$temps == 'Fog-Snow'] <- 'Snow'
-data$temps[data$temps == 'Rain-Thunderstorm'] <- 'Rain'
-noRainSubset <- data[data$temps == 'Rain' & data$precipitation == 0, ]
-noRainSubset$temps <- ifelse(noRainSubset$nuage >= 6, 'Cloudy', 'Sunny')
-data$temps[data$temps == 'Rain' & data$precipitation == 0] <- noRainSubset$temps
-data$temps <- factor(data$temps)
+levels(data$weather) <- c(levels(data$weather), 'Cloudy', 'Sunny')
+data$weather[data$weather == '' & data$cloudLevel >= 6] <- 'Cloudy'
+data$weather[data$weather == ''] <- 'Sunny'
+data$weather[data$weather == 'Fog'] <- 'Cloudy'
+data$weather[data$weather == 'Fog-Rain-Snow'] <- 'Snow'
+data$weather[data$weather == 'Fog-Rain-Thunderstorm'] <- 'Rain'
+data$weather[data$weather == 'Rain-Snow'] <- 'Snow'
+data$weather[data$weather == 'Thunderstorm'] <- 'Rain'
+data$weather[data$weather == 'Fog-Rain'] <- 'Rain'
+data$weather[data$weather == 'Fog-Snow'] <- 'Snow'
+data$weather[data$weather == 'Rain-Thunderstorm'] <- 'Rain'
+noRainSubset <- data[data$weather == 'Rain' & data$precipitation == 0, ]
+noRainSubset$weather <- ifelse(noRainSubset$cloudLevel >= 6, 'Cloudy', 'Sunny')
+data$weather[data$weather == 'Rain' & data$precipitation == 0] <-
+    noRainSubset$weather
+data$weather <- factor(data$weather)
 
 write.csv(data, file = 'processedDataset.csv', quote = F, row.names = F)
