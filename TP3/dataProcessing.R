@@ -21,6 +21,8 @@ colnames(data) <- c('date',
                     'weather')
 
 levels(data$weather) <- c(levels(data$weather), 'Cloudy', 'Sunny')
+# replace nas in cloudLevel by its mean
+data$cloudLevel[is.na(data$cloudLevel)] <- mean(data$cloudLevel, na.rm = T)
 data$weather[data$weather == '' & data$cloudLevel >= 6] <- 'Cloudy'
 data$weather[data$weather == ''] <- 'Sunny'
 data$weather[data$weather == 'Fog'] <- 'Cloudy'
