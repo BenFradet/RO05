@@ -16,6 +16,7 @@ colnames(data) <- c('date',
 levels(data$temps) <- c(levels(data$temps), 'Cloudy', 'Sunny')
 data$temps[data$nuage >= 6 & data$temps == ''] <- 'Cloudy'
 data$temps[data$temps == ''] <- 'Sunny'
+data$temps[data$temps == 'Fog'] <- 'Cloudy'
 data$temps[data$temps == 'Fog-Rain-Snow'] <- 'Snow'
 data$temps[data$temps == 'Fog-Rain-Thunderstorm'] <- 'Rain'
 data$temps[data$temps == 'Rain-Snow'] <- 'Snow'
