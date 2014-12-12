@@ -16,7 +16,6 @@ colnames(data) <- c('date',
 levels(data$temps) <- c(levels(data$temps), 'Cloudy', 'Sunny')
 data$temps[data$nuage >= 6 & data$temps == ''] <- 'Cloudy'
 data$temps[data$temps == ''] <- 'Sunny'
-data$temps[data$temps == 'Fog'] <- 'Cloudy'
 data$temps[data$temps == 'Fog-Rain-Snow'] <- 'Snow'
 data$temps[data$temps == 'Fog-Rain-Thunderstorm'] <- 'Rain'
 data$temps[data$temps == 'Rain-Snow'] <- 'Snow'
@@ -24,6 +23,9 @@ data$temps[data$temps == 'Thunderstorm'] <- 'Rain'
 data$temps[data$temps == 'Fog-Rain'] <- 'Rain'
 data$temps[data$temps == 'Fog-Snow'] <- 'Snow'
 data$temps[data$temps == 'Rain-Thunderstorm'] <- 'Rain'
+noRainSubset <- data[data$temps == 'Rain' & data$precipitation == 0, ]
+noRainSubset$temps <- ifelse(noRainSubset$nuage >= 6, 'Cloudy', 'Sunny')
+data$temps[data$temps == 'Rain' & data$precipitation == 0] <- noRainSubset$temps
 data$temps <- factor(data$temps)
 
 write.csv(data, file = 'processedDataset.csv', quote = F, row.names = F)
