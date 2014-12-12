@@ -1,10 +1,17 @@
-data <- read.csv('dataset.csv')
+data <- read.csv('dataset.csv', stringsAsFactors = F)
+
+# throw away the data we don't need
 data <- data[c(1, 3, 9, 12, 20, 21, 22)]
+
+# conversion from inches of mercury to hPa
 data$Mean.Sea.Level.PressureIn <-
     round(data$Mean.Sea.Level.PressureIn * 33.86, 2)
+# conversion from inches to mm
 data$PrecipitationIn <- data$PrecipitationIn * 25.4
+# conversion from Farenheit to Celsius
 data$Mean.TemperatureF <- round((data$Mean.TemperatureF - 32) * 5 / 9)
 
+# renaming of the columns
 colnames(data) <- c('date',
                     'temperature',
                     'humidity',
@@ -29,5 +36,11 @@ noRainSubset$weather <- ifelse(noRainSubset$cloudLevel >= 6, 'Cloudy', 'Sunny')
 data$weather[data$weather == 'Rain' & data$precipitation == 0] <-
     noRainSubset$weather
 data$weather <- factor(data$weather)
+# 1 = Cloudy
+# 2 = Rain
+# 3 = Snow
+# 4 = Sunny
+data$weather2 <- unclass(data$weather)
+data$dayOfYear <- c(1:365)
 
 write.csv(data, file = 'processedDataset.csv', quote = F, row.names = F)
