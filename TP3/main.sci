@@ -22,13 +22,13 @@ fCloudy = size(data(data(:, 7) == 1, :), 1);
 fRain = size(data(data(:, 7) == 2, :), 1);
 fSnow = size(data(data(:, 7) == 3, :), 1);
 fSunny = size(data(data(:, 7) == 4, :), 1);
-disp('cloudy: ' + fCloudy);
-disp('rain: ', fRain);
-disp('snow: ', fSnow);
-disp('sunny: ', fSunny);
+disp(fCloudy, 'cloudy: ');
+disp(fRain, 'rain: ');
+disp(fSnow, 'snow: ');
+disp(fSunny, 'sunny: ');
 
 // generates a 15 long sequence of weather types with the multinomial model
-disp(sample(15, [1; 2; 3; 4], [fCloudy; fRain; fSnow; fSunny]));
+disp(samplef(15, [1; 2; 3; 4], [fCloudy; fRain; fSnow; fSunny]));
 
 
 // Markov model
@@ -45,6 +45,7 @@ cloudyToSunny = length(weathersAfterCloudy(weathersAfterCloudy == 4)) / nCloudy;
 
 // Rain = 2
 rainIndices = find(data(:, 7) == 2);
+rainIndices = rainIndices(1:length(rainIndices) - 1);
 nRain = length(rainIndices);
 weathersAfterRain = data(rainIndices + 1, 7);
 rainToCloudy = length(weathersAfterRain(weathersAfterRain == 1)) / nRain;
@@ -68,3 +69,9 @@ sunnyToCloudy = length(weathersAfterSunny(weathersAfterSunny == 1)) / nSunny;
 sunnyToRain = length(weathersAfterSunny(weathersAfterSunny == 2)) / nSunny;
 sunnyToSnow = length(weathersAfterSunny(weathersAfterSunny == 3)) / nSunny;
 sunnyToSunny = length(weathersAfterSunny(weathersAfterSunny == 4)) / nSunny;
+
+p = [cloudyToCloudy, cloudyToRain, cloudyToSnow, cloudyToSunny; ...
+    rainToCloudy, rainToRain, rainToSnow, rainToSunny; ...
+    snowToCloudy, snowToRain, snowToSnow, snowToSunny; ...
+    sunnyToCloudy, sunnyToRain, sunnyToSnow, sunnyToSunny];
+disp(p, 'transition matrix: ');
