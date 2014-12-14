@@ -1,3 +1,5 @@
+exec('generateMarkovSeq.sci', -1);
+
 // read csv file
 data = csvRead('processedDataset.csv');
 
@@ -13,22 +15,25 @@ data(:, [7, 9]) = [];
 // 2 = Rain
 // 3 = Snow
 // 4 = Sunny
+weathers = [1; 2; 3; 4];
+nSeq = 15;
 
 
 // multinomial model
 n = size(data, 1);
 // computes the frequency of each type of weather
-fCloudy = size(data(data(:, 7) == 1, :), 1);
-fRain = size(data(data(:, 7) == 2, :), 1);
-fSnow = size(data(data(:, 7) == 3, :), 1);
-fSunny = size(data(data(:, 7) == 4, :), 1);
-disp(fCloudy, 'cloudy: ');
-disp(fRain, 'rain: ');
-disp(fSnow, 'snow: ');
-disp(fSunny, 'sunny: ');
+pCloudy = size(data(data(:, 7) == 1, :), 1) / n;
+pRain = size(data(data(:, 7) == 2, :), 1) / n;
+pSnow = size(data(data(:, 7) == 3, :), 1) / n;
+pSunny = size(data(data(:, 7) == 4, :), 1) / n;
+disp(pCloudy, 'cloudy: ');
+disp(pRain, 'rain: ');
+disp(pSnow, 'snow: ');
+disp(pSunny, 'sunny: ');
+initialProbs = [pCloudy; pRain; pSnow; pSunny];
 
 // generates a 15 long sequence of weather types with the multinomial model
-disp(samplef(15, [1; 2; 3; 4], [fCloudy; fRain; fSnow; fSunny]));
+disp(samplef(nSeq, weathers, initialProbs), 'multinomial sequence: ');
 
 
 // Markov model
@@ -75,3 +80,6 @@ p = [cloudyToCloudy, cloudyToRain, cloudyToSnow, cloudyToSunny; ...
     snowToCloudy, snowToRain, snowToSnow, snowToSunny; ...
     sunnyToCloudy, sunnyToRain, sunnyToSnow, sunnyToSunny];
 disp(p, 'transition matrix: ');
+
+// generates a markov sequence
+disp(generateMarkovSeq(p, initialProbs, nSeq), 'markov sequence: ');
