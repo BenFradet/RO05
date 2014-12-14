@@ -1,3 +1,6 @@
+// Author: Benjamin Fradet
+// To execute with Scilab 5.5.1
+
 exec('generateMarkovSeq.sci', -1);
 
 // read csv file
@@ -83,3 +86,37 @@ disp(p, 'transition matrix: ');
 
 // generates a markov sequence
 disp(generateMarkovSeq(p, initialProbs, nSeq), 'markov sequence: ');
+
+
+// Hidden Markov model
+
+states = [1; 2];
+normalPressure = 1013.25;
+
+// Low pressure = 1
+lowIndices = find(data(:, 4) <= normalPressure);
+nLow = length(lowIndices);
+weathersLow = data(lowIndices, 7);
+pLowCloudy = length(weathersLow(weathersLow == 1)) / nLow;
+pLowRain = length(weathersLow(weathersLow == 2)) / nLow;
+pLowSnow = length(weathersLow(weathersLow == 3)) / nLow;
+pLowSunny = length(weathersLow(weathersLow == 4)) / nLow;
+disp(pLowCloudy, 'low pressure cloudy prob: ');
+disp(pLowRain, 'low pressure rain prob: ');
+disp(pLowSnow, 'low pressure snow prob: ');
+disp(pLowSunny, 'low pressure sunny prob: ');
+
+// High pressure = 2
+highIndices = find(data(:, 4) > normalPressure);
+nHigh = length(highIndices);
+weathersHigh = data(highIndices, 7);
+pHighCloudy = length(weathersHigh(weathersHigh == 1)) / nHigh;
+pHighRain = length(weathersHigh(weathersHigh == 2)) / nHigh;
+pHighSnow = length(weathersHigh(weathersHigh == 3)) / nHigh;
+pHighSunny = length(weathersHigh(weathersHigh == 4)) / nHigh;
+disp(pHighCloudy, 'high pressure cloudy prob: ');
+disp(pHighRain, 'high pressure rain prob: ');
+disp(pHighSnow, 'high pressure snow prob: ');
+disp(pHighSunny, 'high pressure sunny prob: ');
+
+// compute the probs to change states high/low pressures
