@@ -4,6 +4,7 @@
 exec('generateMarkovSeq.sci', -1);
 exec('generateHMMSeq.sci', -1);
 exec('viterbi.sci', -1);
+exec('baumWelch.sci', -1);
 
 // preprocessing
 
@@ -172,3 +173,10 @@ disp(path, 'most probable state path: ');
 disp(stateMatrix, 'positions states matrix: ');
 
 // to compute: proba of error between the most probable path and real pressures
+
+// learning of the model
+[tMatrix eMatrix] = baumWelch(data(:, 7), initialProbsPressure, 10e-12, 1000);
+disp(tMatrix, 'learned transition matrix: ');
+disp(transitionHMM, 'empirical transition matrix: ');
+disp(eMatrix, 'learned emission matrix: ');
+disp(emissionHMM, 'empirical emission matrix: ');
