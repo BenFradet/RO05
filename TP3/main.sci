@@ -3,6 +3,7 @@
 
 exec('generateMarkovSeq.sci', -1);
 exec('generateHMMSeq.sci', -1);
+exec('viterbi.sci', -1);
 
 // preprocessing
 
@@ -159,3 +160,15 @@ emissionHMM = [pLowCloudy, pLowRain, pLowSnow, pLowSunny; ...
     generateHMMSeq(transitionHMM, emissionHMM, initialProbsPressure, nSeq);
 disp(weatherSeq, 'hmm sequence weathers: ');
 disp(stateSeq, 'hmm sequence pressures: ');
+
+
+// model exploitation
+
+// decoding of sequence of weathers:
+// given the weathers for a whole year, tries to find the sequence of states
+// associated (high or low pressure)
+[path stateMatrix] = viterbi(data(1:20, 7), transitionHMM, emissionHMM);
+disp(path, 'most probable state path: ');
+disp(stateMatrix, 'positions states matrix: ');
+
+// to compute: proba of error between the most probable path and real pressures
