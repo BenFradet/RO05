@@ -2,6 +2,9 @@
 // To execute with Scilab 5.5.1
 
 exec('generateMarkovSeq.sci', -1);
+exec('generateHMMSeq.sci', -1);
+
+// preprocessing
 
 // read csv file
 data = csvRead('processedDataset.csv');
@@ -11,6 +14,8 @@ data(1, :) = [];
 // remove strings columns
 data(:, 1) = data(:, 9);
 data(:, [7, 9]) = [];
+
+
 // matrix is now day of year, temperature, humidity, pressure, precipitation,
 // cloud level, weather
 // weather is coded as follows:
@@ -19,12 +24,15 @@ data(:, [7, 9]) = [];
 // 3 = Snow
 // 4 = Sunny
 weathers = [1; 2; 3; 4];
+// 1 = Low pressure
+// 2 = High pressure
+pressures = [1; 2];
 nSeq = 15;
 
 
-// multinomial model
+// computes the intial probabilities
 n = size(data, 1);
-// computes the frequency of each type of weather
+// computes the probabilities of each type of weather
 pCloudy = size(data(data(:, 7) == 1, :), 1) / n;
 pRain = size(data(data(:, 7) == 2, :), 1) / n;
 pSnow = size(data(data(:, 7) == 3, :), 1) / n;
@@ -33,10 +41,18 @@ disp(pCloudy, 'cloudy: ');
 disp(pRain, 'rain: ');
 disp(pSnow, 'snow: ');
 disp(pSunny, 'sunny: ');
-initialProbs = [pCloudy; pRain; pSnow; pSunny];
+initialProbsWeather = [pCloudy; pRain; pSnow; pSunny];
+// computes the probabilites of each state
+normalPressure = 1013.25;
+pLow = size(data(data(:, 4) <= normalPressure, :), 1) / n;
+pHigh = 1 - pLow;
+initialProbsPressure = [pLow; pHigh];
+
+
+// multinomial model
 
 // generates a 15 long sequence of weather types with the multinomial model
-disp(samplef(nSeq, weathers, initialProbs), 'multinomial sequence: ');
+disp(samplef(nSeq, weathers, initialProbsWeather), 'multinomial sequence: ');
 
 
 // Markov model
@@ -78,20 +94,18 @@ sunnyToRain = length(weathersAfterSunny(weathersAfterSunny == 2)) / nSunny;
 sunnyToSnow = length(weathersAfterSunny(weathersAfterSunny == 3)) / nSunny;
 sunnyToSunny = length(weathersAfterSunny(weathersAfterSunny == 4)) / nSunny;
 
-p = [cloudyToCloudy, cloudyToRain, cloudyToSnow, cloudyToSunny; ...
-    rainToCloudy, rainToRain, rainToSnow, rainToSunny; ...
-    snowToCloudy, snowToRain, snowToSnow, snowToSunny; ...
-    sunnyToCloudy, sunnyToRain, sunnyToSnow, sunnyToSunny];
-disp(p, 'transition matrix: ');
+pMarkov = [cloudyToCloudy, cloudyToRain, cloudyToSnow, cloudyToSunny; ...
+            rainToCloudy, rainToRain, rainToSnow, rainToSunny; ...
+            snowToCloudy, snowToRain, snowToSnow, snowToSunny; ...
+            sunnyToCloudy, sunnyToRain, sunnyToSnow, sunnyToSunny];
+disp(pMarkov, 'transition matrix: ');
 
 // generates a markov sequence
-disp(generateMarkovSeq(p, initialProbs, nSeq), 'markov sequence: ');
+disp(...
+    generateMarkovSeq(pMarkov, initialProbsWeather, nSeq), 'markov sequence: ');
 
 
 // Hidden Markov model
-
-states = [1; 2];
-normalPressure = 1013.25;
 
 // Low pressure = 1
 lowIndices = find(data(:, 4) <= normalPressure);
@@ -119,4 +133,29 @@ disp(pHighRain, 'high pressure rain prob: ');
 disp(pHighSnow, 'high pressure snow prob: ');
 disp(pHighSunny, 'high pressure sunny prob: ');
 
-// compute the probs to change states high/low pressures
+// computes the probs to change states high/low pressures
+lowIndices = lowIndices(1:length(lowIndices) - 1);
+pressuresAfterLow = data(lowIndices + 1, 4);
+lowToLow = length(pressuresAfterLow(pressuresAfterLow <= normalPressure)) / ...
+    nLow;
+lowToHigh = length(pressuresAfterLow(pressuresAfterLow > normalPressure)) / ...
+    nLow;
+
+pressuresAfterHigh = data(highIndices + 1, 4);
+highToLow = length(pressuresAfterHigh(pressuresAfterHigh <= normalPressure)) ...
+    / nHigh;
+highToHigh = ...
+    length(pressuresAfterHigh(pressuresAfterHigh > normalPressure)) / nHigh;
+
+// transition matrix
+transitionHMM = [lowToLow, lowToHigh; ...
+                highToLow, highToHigh];
+// emission matrix
+emissionHMM = [pLowCloudy, pLowRain, pLowSnow, pLowSunny; ...
+                pHighCloudy, pHighRain, pHighSnow, pHighSunny];
+
+// generates a hidden markov sequence
+[weatherSeq stateSeq] = ...
+    generateHMMSeq(transitionHMM, emissionHMM, initialProbsPressure, nSeq);
+disp(weatherSeq, 'hmm sequence weathers: ');
+disp(stateSeq, 'hmm sequence pressures: ');
