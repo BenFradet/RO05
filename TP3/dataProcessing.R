@@ -39,7 +39,8 @@ data$weather[data$weather == 'Rain' & data$precipitation == 0] <-
     noRainSubset$weather
 data$weather <- factor(data$weather)
 normalPressure <- 1013.25
-data$state <- ifelse(data$pressure <= normalPressure, 1, 2)
+data$state <- ifelse(data$pressure <= normalPressure,
+                     'Low pressure', 'High pressure')
 data$state <- factor(data$state)
 # 1 = Cloudy
 # 2 = Rain
