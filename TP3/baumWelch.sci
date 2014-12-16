@@ -34,14 +34,14 @@ function[transitionMatrix, emissionMatrix] = baumWelch(...
         it = it + 1;
         [phi c] = ...
             filter(sequence, initialProbs, transitionMatrix, emissionMatrix);
-        beta = smoother(sequence, transitionMatrix, emissionMatrix, c);
+        bt = smoother(sequence, transitionMatrix, emissionMatrix, c);
         // computes the posterior distribution
-        post = phi .* beta;
+        post = phi .* bt;
 
         // expectation phase
         // number of transitions
         N = transitionMatrix .* (phi(:, 1:$ - 1) * ...
-            (beta(:, 2:$) .* emissionMatrix(:, sequence(2:$)) ./ ...
+            (bt(:, 2:$) .* emissionMatrix(:, sequence(2:$)) ./ ...
             (ones(k, 1) * c(2:$)))');
         // number of emissions
         M = post * Y;
