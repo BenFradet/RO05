@@ -5,6 +5,7 @@ exec('generateMarkovSeq.sci', -1);
 exec('generateHMMSeq.sci', -1);
 exec('viterbi.sci', -1);
 exec('baumWelch.sci', -1);
+exec('forward.sci', -1);
 
 // preprocessing
 
@@ -164,6 +165,10 @@ disp(stateSeq, 'hmm sequence pressures: ');
 
 
 // model exploitation
+
+// posterior state probabilities of an emission sequence
+posteriors = forward(data(1:20, 7), transitionHMM, emissionHMM);
+disp(posteriors, 'posterior state probabilities');
 
 // decoding of sequence of weathers:
 // given the weathers for a whole year, tries to find the sequence of states
