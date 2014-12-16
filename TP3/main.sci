@@ -12,21 +12,22 @@ exec('forward.sci', -1);
 // read csv file
 data = csvRead('processedDataset.csv');
 
+n = size(data, 1);
 // remove header line
 data(1, :) = [];
 // remove strings columns
-data(:, 1) = data(:, 9);
-data(:, [7, 9]) = [];
-
+data(:, 1) = data(:, 11);
+data(:, [7, 8, 11]) = [];
 
 // matrix is now day of year, temperature, humidity, pressure, precipitation,
-// cloud level, weather
+// cloud level, weather, pressure type
 // weather is coded as follows:
 // 1 = Cloudy
 // 2 = Rain
 // 3 = Snow
 // 4 = Sunny
 weathers = [1; 2; 3; 4];
+// pressure type is coded as follows:
 // 1 = Low pressure
 // 2 = High pressure
 pressures = [1; 2];
@@ -34,7 +35,6 @@ nSeq = 15;
 
 
 // computes the intial probabilities
-n = size(data, 1);
 // computes the probabilities of each type of weather
 pCloudy = size(data(data(:, 7) == 1, :), 1) / n;
 pRain = size(data(data(:, 7) == 2, :), 1) / n;
@@ -168,14 +168,19 @@ disp(stateSeq, 'hmm sequence pressures: ');
 
 // posterior state probabilities of an emission sequence
 posteriors = forward(data(1:20, 7), transitionHMM, emissionHMM);
-disp(posteriors, 'posterior state probabilities');
+disp(posteriors, 'posterior state probabilities: ');
 
 // decoding of sequence of weathers:
 // given the weathers for a whole year, tries to find the sequence of states
 // associated (high or low pressure)
-[path stateMatrix] = viterbi(data(1:20, 7), transitionHMM, emissionHMM);
-disp(path, 'most probable state path: ');
-disp(stateMatrix, 'positions states matrix: ');
+[path stateMatrix] = viterbi(data(:, 7), transitionHMM, emissionHMM);
+// actual state vector
+actualState = data(:, 8);
+probaError = sum(actualState == path') / n;
+disp(probaError, ...
+        'proba of error between the most likely path and the real path: ');
+disp(path(1:20), 'most probable state path: ');
+disp(stateMatrix(1:5, :), 'positions states matrix: ');
 
 // to compute: proba of error between the most probable path and real pressures
 
