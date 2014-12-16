@@ -1,4 +1,4 @@
-function[bt] = smoother(sequence, transitionMatrix, emissionMatrix, filter)
+function[bt] = smoother(sequence, transitionMatrix, emissionMatrix, filt)
     // Author: Benjamin Fradet
     // Credits: Aurelien Garivier
     // http://www.math.univ-toulouse.fr/~agarivie/Telecom/code/index.php
@@ -11,6 +11,6 @@ function[bt] = smoother(sequence, transitionMatrix, emissionMatrix, filter)
     for t = (n-1):-1:1
         bt(:, t) = transitionMatrix * ...
             (emissionMatrix(:, sequence(t + 1)) .* bt(:, t + 1)) / ...
-            filter(t + 1);
+            filt(t + 1);
     end
 endfunction

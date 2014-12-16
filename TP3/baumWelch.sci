@@ -7,7 +7,7 @@ function[transitionMatrix, emissionMatrix] = baumWelch(...
     // Credits: Aurelien Garivier
     // http://www.math.univ-toulouse.fr/~agarivie/Telecom/code/index.php
 
-    exec('filter.sci', -1);
+    exec('filt.sci', -1);
     exec('smoother.sci', -1);
 
     n = length(sequence);
@@ -33,7 +33,7 @@ function[transitionMatrix, emissionMatrix] = baumWelch(...
             norm(oldEmissionMatrix - emissionMatrix, 1)) > tol & it <= maxIt)
         it = it + 1;
         [phi c] = ...
-            filter(sequence, initialProbs, transitionMatrix, emissionMatrix);
+            filt(sequence, initialProbs, transitionMatrix, emissionMatrix);
         bt = smoother(sequence, transitionMatrix, emissionMatrix, c);
         // computes the posterior distribution
         post = phi .* bt;
