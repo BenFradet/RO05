@@ -175,7 +175,21 @@ disp(stateMatrix, 'positions states matrix: ');
 // to compute: proba of error between the most probable path and real pressures
 
 // learning of the model
-[tMatrix eMatrix] = baumWelch(data(:, 7), initialProbsPressure, 10e-12, 1000);
+disp(initialProbsWeather);
+tMatrix = zeros(2, 2);
+eMatrix = zeros(2, 4);
+nIter = 20;
+for i = 1:nIter
+    [tmpTMatrix tmpEMatrix] = baumWelch(data(:, 7), ...
+        initialProbsPressure, ...
+        [initialProbsWeather'; initialProbsWeather'], ...
+        10e-8, 1000);
+    tMatrix = tMatrix + tmpTMatrix;
+    eMatrix = eMatrix + tmpEMatrix;
+end
+tMatrix = tMatrix / nIter;
+eMatrix = eMatrix / nIter;
+
 disp(tMatrix, 'learned transition matrix: ');
 disp(transitionHMM, 'empirical transition matrix: ');
 disp(eMatrix, 'learned emission matrix: ');
