@@ -1,9 +1,11 @@
-// Author: Benjamin Fradet
 function[mostProbableStatePath, positionsStatesMatrix] = viterbi(...
         sequence, ...
         transitionMatrix, ...
         emissionMatrix)
+    // Author: Benjamin Fradet
+
     exec('makeViterbiMatrix.sci', -1);
+
     viterbi = makeViterbiMatrix(sequence, transitionMatrix, emissionMatrix);
     // finds the state with the highest probability
     [m mostProbableStatePath] = max(viterbi, 'c')';
