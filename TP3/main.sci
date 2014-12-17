@@ -5,7 +5,7 @@ exec('generateMarkovSeq.sci', -1);
 exec('generateHMMSeq.sci', -1);
 exec('viterbi.sci', -1);
 exec('baumWelch.sci', -1);
-exec('forward.sci', -1);
+exec('forwardBackward.sci', -1);
 
 // preprocessing
 
@@ -155,7 +155,8 @@ emissionHMM = [pLowCloudy, pLowRain, pLowSnow, pLowSunny; ...
 // model exploitation
 
 // posterior state probabilities of an emission sequence
-posteriors = forward(data(1:20, 7), transitionHMM, emissionHMM);
+posteriors = forwardBackward(data(1:20, 7), initialProbsPressure, ...
+    transitionHMM, emissionHMM);
 disp(posteriors, 'posterior state probabilities: ');
 
 // decoding of sequence of weathers:
@@ -166,7 +167,7 @@ disp(posteriors, 'posterior state probabilities: ');
 actualState = data(:, 8);
 probaError = sum(actualState == path') / n;
 disp(probaError, ...
-        'proba of error between the most likely path and the real path: ');
+    'proba of error between the most likely path and the real path: ');
 disp(path(1:20), 'most probable state path: ');
 disp(stateMatrix(1:5, :), 'positions states matrix: ');
 
