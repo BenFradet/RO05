@@ -152,14 +152,16 @@ emissionHMM = [pLowCloudy, pLowRain, pLowSnow, pLowSunny; ...
 // generates a hidden markov sequence
 [weatherSeq stateSeq] = ...
     generateHMMSeq(transitionHMM, emissionHMM, initialProbsPressure, nSeq);
+disp(weatherSeq, 'generated hmm weather sequence: ');
+disp(stateSeq, 'generated hmm hidden state sequence: ');
 // model exploitation
 
 // posterior state probabilities of an emission sequence
-posteriors = forwardBackward(data(1:20, 7), initialProbsPressure, ...
+posteriors = forwardBackward(data(1:10, 7), initialProbsPressure, ...
     transitionHMM, emissionHMM);
 disp(posteriors, 'posterior state probabilities: ');
 
-// decoding of sequence of weathers:
+// most probable path:
 // given the weathers for a whole year, tries to find the sequence of states
 // associated (high or low pressure)
 [path stateMatrix] = viterbi(data(:, 7), transitionHMM, emissionHMM);
@@ -168,26 +170,30 @@ actualState = data(:, 8);
 probaError = sum(actualState == path') / n;
 disp(probaError, ...
     'proba of error between the most likely path and the real path: ');
-disp(path(1:20), 'most probable state path: ');
-disp(stateMatrix(1:5, :), 'positions states matrix: ');
+disp(path(1:10), 'most probable state path: ');
+disp(actualState(1:10)', 'real state path: ');
+disp(stateMatrix(1:4, :), 'positions states matrix: ');
 
 // to compute: proba of error between the most probable path and real pressures
 
 // learning of the model
-disp(initialProbsWeather);
+disp(initialProbsWeather, 'lambda weather: ');
+disp(initialProbsPressure, 'lambda pressure: ');
 tMatrix = zeros(2, 2);
 eMatrix = zeros(2, 4);
-nIter = 20;
+l = 0;
+nIter = 10;
 for i = 1:nIter
-    [tmpTMatrix tmpEMatrix] = baumWelch(data(:, 7), ...
+    [tmpTMatrix tmpEMatrix tmpL] = baumWelch(data(:, 7), ...
         initialProbsPressure, ...
-        [initialProbsWeather'; initialProbsWeather'], ...
         10e-8, 1000);
     tMatrix = tMatrix + tmpTMatrix;
-    eMatrix = eMatrix + tmpEMatrix;
+    if abs(tmpL) > abs(l)
+        l = tmpL;
+        eMatrix = tmpEMatrix;
+    end
 end
-tMatrix = tMatrix / nIter;
-eMatrix = eMatrix / nIter;
+tMatrix = tMatrix ./ nIter;
 
 disp(tMatrix, 'learned transition matrix: ');
 disp(transitionHMM, 'empirical transition matrix: ');
