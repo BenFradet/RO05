@@ -7,5 +7,5 @@ function[posteriors] = forwardBackward(sequence, initialProbs, ...
     alph = forward(sequence, initialProbs, transitionMatrix, emissionMatrix);
     bet = backward(sequence, transitionMatrix, emissionMatrix);
     alphaBeta = alph .* bet;
-    posteriors = alphaBeta ./ repmat(sum(alphaBeta, 1), size(alphaBeta, 1), 1);
+    posteriors = alphaBeta ./ repmat(sum(alphaBeta, 2), 1, size(alphaBeta, 2));
 endfunction
