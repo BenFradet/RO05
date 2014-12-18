@@ -52,4 +52,11 @@ data$weather2 <- unclass(data$weather)
 data$state2 <- unclass(data$state)
 data$dayOfYear <- c(1:365)
 
+data <- data[c('dayOfYear',
+               'pressure',
+               'state',
+               'state2',
+               'weather',
+               'weather2')]
+
 write.csv(data, file = 'processedDataset.csv', quote = F, row.names = F)
