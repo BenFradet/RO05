@@ -28,7 +28,7 @@
 \pagestyle{fancy}
 \fancyhead{}
 \fancyfoot{}
-\fancyhead[C]{TP A: Modele de Markov cache et l'apprentissage automatique}
+\fancyhead[C]{TP A: modèle de Markov cache et l'apprentissage automatique}
 \fancyfoot[RO, LE]{\thepage}
 
 \newcommand{\bfx}{\mathbf(x)}
@@ -36,7 +36,7 @@
 
 %-------------------------------------------------------------------------------
 
-\title{Compte-rendu Modele de Markov cache et l'apprentissage automatique}
+\title{Compte-rendu Modèle de Markov caché et l'apprentissage automatique}
 
 \author{Julien Amalfi, Benjamin Fradet}
 \date{\today}
@@ -50,6 +50,8 @@
 %-------------------------------------------------------------------------------
 
 \begin{abstract}
+    Ce TP a pour but l'introduction aux modèles de Markov cachés ainsi que leur
+    exploitation.
 \end{abstract}
 
 %-------------------------------------------------------------------------------
@@ -58,30 +60,143 @@
 
 \section{Introduction}\label{sec:intro}
 
+Lorsqu’on analyse un jeu de données quelconque, il n’est pas toujours évident de
+déterminer les modèles qui sont mis en jeu à première vue. Il est souvent
+nécessaire de formuler des hypothèses fortes afin de pouvoir étudier
+l’échantillon. Étudiants en fouille de données, le sujet A nous a semblé être
+une bonne opportunité pour appréhender une technique que l’on a pas eue
+l’occasion d'utiliser dans nos UV de filière. De cette manière, nous serons en
+mesure de comparer les modèles de Markov cachés avec les autres techniques
+d'apprentissage automatique que nous avons déjà eus l'occasion d'utiliser.
+
 %-------------------------------------------------------------------------------
 
-\section{Presentation du modele}\label{sec:model}
-JULIEN
+\section{Présentation du modèle}\label{sec:model}
 
-\section{Presentation des donnees}\label{sec:donnees}
-JULIEN
+Nous avons vu dans le cadre du cours ce qu’est une chaîne de Markov, définie par
+un couple $(\lambda, P)$ avec $P$ la matrice de transitions entre les états et
+$\lambda$ la loi initiale. Cependant, il n’est pas toujours possible de connaître
+les valeurs théoriques liées au modèle. Par exemple, dans le domaine de la
+recherche, il est fréquent que les seules données disponibles soient un ensemble
+de transitions entre états. Dans ce cas, il semble qu’il s’agisse d’une chaîne
+de Markov néanmoins on n’en connaît pas les paramètres. On parle alors de modèle
+de Markov caché. \\
+Le modèle de Markov caché est un modèle de paramètres inconnus mais dont le
+système est supposé être un processus de Markov. Celui-ci est donc défini par:
 
-\section{Construction du modele}\label{sec:construct}
+\begin{itemize}
+    \item Une loi initiale $\lambda$.
+    \item Une matrice de transitions entre états $P$ telle que
+        $\mathbb{P}(X_n = x|X_{n - 1} = y) = P(y, x)$ avec $X_i$ l’état à
+        l’instant $i$.
+    \item Une matrice d’émissions $Q$ telle que
+        $\mathbb{P}(S_n = x|X_n = y) = Q(y, x)$, avec $S_n$ la réalisation
+        observée à l’instant $t$ dépendant des $S_i$ avec $i = 1..n$.
+\end{itemize}
 
-Nous avons defini notre ensemble d'etats tel que:
+$X_i$ appartient à l’ensemble d’états (cachés) tandis que $S_i$ appartient à
+l’espace des données observées.
+
+Il existe 3 problèmes liés au modèle de Markov caché :
+
+\begin{itemize}
+    \item Évaluation: \\
+        Connaissant les paramètres du modèle et une séquence d’observations
+        donnée, on souhaite déterminer la probabilité de la séquence d'états
+        cachés associée.
+    \item Calcul de la séquence d'états la plus probable: \\
+        Connaissant les paramètres du modèle et une séquence d’observations
+        donnée, on souhaite déterminer la séquence d’états la plus probable
+        ayant permis de la générer.
+    \item Apprentissage: \\
+        Connaissant une séquence donnée, on souhaite déterminer les paramètres
+        du modèle qui maximise la probabilité de la séquence observée.
+\end{itemize}
+
+Pour chacune de ces trois situations, il existe un algorithme spécifique
+permettant de répondre au problème posé, respectivement l’algorithme
+forward-backward, l’algorithme de Viterbi et l’algorithme de Baum-Welch, que
+nous expliciterons dans la section concernant l’exploitation du modèle.
+
+\section{Présentation des données}\label{sec:donnees}
+
+Dans le cadre de ce TP, nous avons choisi un jeu de données issu d’un organisme
+météorologique dans le but de pouvoir appliquer un modèle de Markov caché, et
+donc, d’essayer de réaliser une prévision du temps en fonction de ce que l’on
+sait du jour précédent.
+
+Ici, il s’agit des données recueillies du 1er janvier 2013 au 31 décembre 2013
+sur la ville de Compiègne (\url{http://www.wunderground.com/}).
+
+Afin de pouvoir pleinement analyser le modèle, nous avons gardé un ensemble de
+variables qui nous semblait susceptible de jouer un rôle dans le changement du
+temps. En effet, afin de pouvoir prédire le temps, nous avons conservé : la date
+du jour, la pression atmosphérique et le temps du jour donné (nuageux, pluvieux,
+neigeux, ensoleillé).
+
+Cependant il n’est pas évident de travailler avec des données brutes, nous avons
+donc réalisé un prétraitement sur celles-ci. Nous avons créé une nouvelle
+variable d'état représentat la pression coupant l’ensemble en deux : basse
+pression et haute pression. Ainsi toutes les valeurs supérieures à 1013,25 hPa
+sont considérées en haute pression tandis que celles inférieures au seuil sont
+définies en tant que basse pression. Cette valeur seuil est la pression
+atmosphérique considérée comme moyenne dans le domaine météorologique.
+
+De plus, sous Scilab, il est bien plus aisé de travailler avec des données sous
+format numérique. C’est pourquoi nous avons ajouté une variable sur le temps:
 
 \begin{equation}
-    E = {\text{basse pression}, \text{haute pression}}
+    \begin{split}
+        & \{1, 2, 3, 4\} \\
+        & \text{définissant respectivement: } \\
+        & \{\text{nuageux}, \text{pluvieux}, \text{neigeux}, \text{ensoleillé}\}
+    \end{split}
+\end{equation}
+
+De même pour la pression:
+
+\begin{equation}
+    \begin{split}
+        & \{\text{basse pression}, \text{haute pression}\} \\
+        & \text{qui devient: }               \\
+        & \{1, 2\}                           \\
+    \end{split}
+\end{equation}
+
+Enfin, pour la date de l’année, notre jeu de données se limitant à une année
+complète, nous avons utilisé les valeurs de 1 à 365 pour les définir.
+
+A titre d'exemple voici les dix premières lignes de notre fichier après
+traitement:
+
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[width=0.5\textwidth]{csv.png}
+        \centering
+        \captionsetup{justification=centering}
+        \caption{\label{fig:empiricalHmm}Données après traitement}
+    \end{center}
+\end{figure}
+
+Ainsi le but de la simulation est, à partir d'une séquence de temps observés,
+déduire le modèle de Markov caché modélisant au mieux cette séquence.
+
+\section{Construction du modèle}\label{sec:construct}
+
+Nous avons défini notre ensemble d'états cachés tel que:
+
+\begin{equation}
+    E = \{\text{basse pression}, \text{haute pression}\}
 \end{equation}
 
 et notre ensemble d'observations:
 
 \begin{equation}
-    O = {\text{soleil}, \text{nuage}, \text{pluie}, \text{neige}}
+    O = \{\text{soleil}, \text{nuage}, \text{pluie}, \text{neige}\}
 \end{equation}
 
-Nous calculons nos matrices d'emissions et de transitions ainsi que notre loi
-initiale a partir de nos donnees:
+Nous calculons nos matrices d'émissions et de transitions ainsi que notre loi
+initiale à partir de nos données:
 
 \begin{itemize}
     \item Matrice de transitions:
@@ -108,43 +223,43 @@ initiale a partir de nos donnees:
         \end{equation}
 \end{itemize}
 
-Ceci nous donne le modele suivant:
+Ceci nous donne le modèle suivant:
 
 \begin{figure}[H]
     \begin{center}
         \includegraphics[width=0.5\textwidth]{empiricalHmm.png}
         \centering
         \captionsetup{justification=centering}
-        \caption{\label{fig:empiricalHmm}Modele de Markov cache empirique}
+        \caption{\label{fig:empiricalHmm}Modèle de Markov caché empirique}
     \end{center}
 \end{figure}
 
-\section{Exploitation du modele}\label{sec:exploit}
+\section{Exploitation du modèle}\label{sec:exploit}
 
-\subsection{Generation d'une sequence d'observations}
+\subsection{Génération d'une séquence d'observations}
 
-A partir du modele precedent, et en particulier des matrices d'emissions et de
-transitions ainsi que de la loi initiale, on peut generer une sequence
-d'etats/observations.
+A partir du modèle précédent, et en particulier des matrices d'émissions et de
+transitions ainsi que de la loi initiale, on peut génerer une séquence
+d'états/observations.
 
-En effet, on commence par choisir un etat de depart a l'aide de la loi initiale,
-puis on cherche une observation en fonction de l'etat choisi a l'aide de la
-matrice d'emission. Enfin, on trouve un nouvel etat a l'aide de la matrice de
-transitions. On repete les deux dernieres etapes jusqu'a avoir la longueur de la
-sequence voulue. Cet algorithme est implemente dans la fonction
+En effet, on commence par choisir un état de depart à l'aide de la loi initiale,
+puis on cherche une observation en fonction de l'état caché choisi à l'aide de
+la matrice d'émission. Enfin, on trouve un nouvel état caché à l'aide de la
+matrice de transitions. On répète les deux dernières étapes jusqu'à avoir la
+longueur de la séquence voulue. Cet algorithme est implementé dans la fonction
 \emph{generateHMMSeq.sci}.
 
-A titre d'exemple, avec notre modele, si on genere une sequence de $n = 10$
-couples etats/observations, on obtient:
+A titre d'exemple, avec notre modèle, si on génère une séquence de $n = 10$
+couples états/observations, on obtient:
 
 \begin{table}[H]
     \begin{center}
         \centering
         \captionsetup{justification=centering}
-        \caption{\label{tab:hmmSeq}Sequence d'etats/observations generes a partir de notre model}
+        \caption{\label{tab:hmmSeq}Séquence d'états/observations générée à partir de notre modèle}
         \begin{tabular}{|c|c|c|}
             \hline
-            & etat & observation \\
+            & état & observation \\
             \hline
             1 & basse pression & nuage \\
             2 & basse pression & nuage \\
@@ -161,27 +276,29 @@ couples etats/observations, on obtient:
     \end{center}
 \end{table}
 
-\subsection{Calcul de la probabilite d'une sequence observee}
+\subsection{Calcul de la probabilité d'une séquence observée}
 
-On peut calculer la probabilite d'une sequence observee grace a l'algorithme
-progressif-retrogressif (ou \emph{forward-backward algorithm}). Cet algorithme
-nous donne les probabilites conditionnelles d'etre a l'etat $k$ a l'etape $i$,
-etant donne une sequence d'observations.
+On peut calculer la probabilité d'une séquence observée grâce à l'algorithme
+progressif-retrogressif (ou \emph{forward-backward algorithm} en anglais). Cet
+algorithme nous donne les probabilités conditionnelles d'être à l'état $k$ à
+l'étape $i$, étant donné une séquence d'observations.
 
-Il se deroule en trois phases:
+Il se déroule en trois phases:
 
 \begin{itemize}
-    \item Calcul progressif des probabilites (etape \emph{forward}):
+    \item Calcul progressif des probabilités (étape \emph{forward}): \\
         On calcule les probabilités d'arriver dans n'importe quel état étant
         donné les $k$ premières observations:
         $f(k) = \mathbb{P}(X_k | s_{1:k})$. \\
+        En notant $s_{1:k}$ la séquence des $k$ premières observations et $X_k$
+        l'état caché à l'étape $k$. \\
         Ceci est implémenté dans la fonction \emph{forward.sci}.
-    \item Calcul retrogressif des probabilites (etape \emph{backward}):
+    \item Calcul retrogressif des probabilités (étape \emph{backward}): \\
         On calcule les probabilités d'observer les observations restantes dans
         la séquence, on procède en marche arrière:
         $b(k) = \mathbb{P}(s_{k + 1:n} | X_k)$. \\
         Ces probabilités sont calculées dans \emph{backward.sci}.
-    \item Lissage des probabilites
+    \item Lissage des probabilités: \\
         Enfin, on combine les probabilités calculées dans les deux premières
         étapes:
 
@@ -199,7 +316,7 @@ Il se deroule en trois phases:
 On peut donc calculer les probabilités d'être dans chaque état à tout instant
 de la séquence. A titre d'exemple, on prend les dix premières observations dans
 notre jeu de données et on calcule les probabilités d'être dans l'état basse ou
-haute pression:
+haute pression lors de chaque étape de la séquence:
 
 \begin{table}[H]
     \begin{center}
@@ -208,7 +325,7 @@ haute pression:
         \caption{\label{tab:fwdbwd}Probabilités des états étant donné une séquence d'observations}
         \begin{tabular}{|c|c|c|}
             \hline
-            Observation & $\mathbb{P}(\text{basse pression})$ & $\mathbb{P}(\text{haute pression})$ \\
+            Observation & $\mathbb{P}(\text{basse p})$ & $\mathbb{P}(\text{haute p})$ \\
             \hline
             Pluie & 0.4847 & 0.5153 \\
             Pluie & 0.5325 & 0.4675 \\
@@ -228,19 +345,19 @@ haute pression:
 \subsection{Calcul de la séquence d'états cachés la plus probable}
 
 Une autre application des modèles de Markov cachés consiste à trouver la
-séquence d'états cachés la plus probable à partir d'une séquence d'observation.
+séquence d'états cachés la plus probable à partir d'une séquence d'observations.
 Ceci est réalisé grâce à l'algorithme de Viterbi. Il consiste à choisir un état
 initial grâce à la loi initiale empirique calculée en ~\ref{eq:init}. Ensuite,
 on calcule itérativement les probabilités des états suivants à partir des
 probabilités de l'état précédent: c'est la probabilité que, étant donné que l'on
-se trouve dans l'état $j$ à l'étape $k$, on obtient le temps $i$ multipliée par
+se trouve dans l'état $j$ à l'étape $k$, on obtienne le temps $i$ multipliée par
 le maximum des probabilités obtenues par l'algorithme de Viterbi pour l'étape
-$k - 1$ multipliées par la colonne de la matrice de transition pour l'état $j$,
+$k - 1$ multiplié par la colonne de la matrice de transition pour l'état $j$,
 ce qui nous donne:
 
 \begin{equation}\label{eq:viterbi}
     \begin{split}
-        V(k,j) &= \mathbb{P}(i | j) \times \operatorname*{max}_{x \in S}(P(x, k) * V(k - 1, x)) \\
+        V(k,j) &= \mathbb{P}(i | j) \times \operatorname*{max}_{x \in E}(P(x, k) * V(k - 1, x)) \\
                &= Q(j, s_k) \times \operatorname*{max}_{x \in S}(P(x, k) \times V(k - 1, x)) \\
     \end{split}
 \end{equation}
@@ -248,7 +365,7 @@ ce qui nous donne:
 où: \\
     - $P$ désigne la matrice de transitions \\
     - $Q$ désigne la matrice d'émissions \\
-    - $S$ désigne l'ensemble d'observations \\
+    - $E$ désigne l'ensemble d'états cachés \\
     - $s_k$ désigne l'observation à l'étape $k$ \\
 
 On peut, par exemple, comparer la séquences d'états cachés obtenue par
@@ -259,7 +376,7 @@ l'annéee:
     \begin{center}
         \centering
         \captionsetup{justification=centering}
-        \caption{\label{tab:fwdbwd}Comparaison entre la séquence d'états cachés obtenu par 'algorithme de Viterbi et la séquence réelle}
+        \caption{\label{tab:fwdbwd}Comparaison entre la séquence d'états cachés obtenue par l'algorithme de Viterbi et la séquence réelle}
         \begin{tabular}{|c|c|}
             \hline
             Séquence réelle & Séquence de Viterbi \\
@@ -285,13 +402,14 @@ empirique. On calcule la séquence d'états la plus probable pour l'année enti�
 grâce à l'algorithme de Viterbi et on obtient une probabilité d'erreur:
 
 \begin{equation}\label{perreur}
-    P_{erreur} = 0.2896
+    \mathbb{P}_{erreur} = 0.2896
 \end{equation}
 
 Malgré le peu d'informations fournies au modèle (une seule variable le
 temps et uniquement une année de données) on obtient un taux d'erreur
 d'uniquement 30\% ce qui paraît raisonnable compte-tenu de notre faible
-connaissance en matière de météorologie.
+connaissance en matière de météorologie. En effet, il existe sûrement des
+variables ou des combinaisons de variables plus explicatives du temps.
 
 L'algorithme de Viterbi est implémenté dans les fonctions
 \emph{makeViterbiMatrix.sci} et \emph{viterbi.sci}.
@@ -303,32 +421,135 @@ partir de la loi a priori $\lambda$ \ref{eq:init} et d'une séquence
 d'observations. L'algorithme de Baum-Welch nous permet d'inférer les matrices
 de transitions et d'émissions à partir d'une séquence d'observations.
 
-Cet algorithme repose sur l'algorithme d'esperance-maximisation: il essaie de
-trouver les matrices $P$ et $Q$ maximisant la probabilite de la sequence
-d'observations donnee et est donc compose de deux phases:
+Cet algorithme repose sur l'algorithme d'espérance-maximisation: il essaie de
+trouver les matrices $P$ et $Q$ maximisant la probabilité de la séquence
+d'observations donnée et est donc composé de deux phases. Si on note la séquence
+d'observations $X$ et $e \in E$ les états cachés de notre modèle et
+$\theta = (P, Q)$ les paramètres à optimiser, à l'itération $i$ de
+l'algorithme, on effectue:
 
 \begin{itemize}
-    \item Estimation des matrices $P$ et $Q$ qui sont les plus probables
-    \item Construction d'un nouveau modele de maniere a
+    \item Une étape d'estimation:
+        \begin{equation}
+            L(\theta, \theta^i) = \sum_{e \in E} log(\mathbb{P}(X, e; \theta))
+            \times \mathbb{P}(e | X; \theta^i)
+        \end{equation}
+    \item Une étape de maximisation:
+        \begin{equation}
+            \theta^{i + 1} = \operatorname*{arg \, max}_{\theta} L(\theta, \theta^{i})
+        \end{equation}
 \end{itemize}
 
-Etant donne que l'algorithme de Baum-Welch ne converge pas vers un maximum
-global mais local, il est necessaire de le faire tourner plusieurs fois et de
-choisir l'iteration ou la log-vraisemblance est maximale en valeur absolue.
+A chaque itération, on augmente la log-vraisemblance jusqu'à ce que la
+différence entre les paramètres à l'étape $i$ et $i + 1$ soit inférieur à un
+seuil fixé par nos soins ou bien que $i$ soit supérieur à un nombre maximum
+d'itérations.
+
+Etant donné que l'algorithme de Baum-Welch ne converge pas vers un maximum
+global mais local, il est nécessaire de le faire tourner plusieurs fois et de
+choisir l'itération où la log-vraisemblance est maximale en valeur absolue.
+
+Par conséquent, on lance l'algorithme un nombre de fois donné (nous avons choisi
+vingt) et nous choisissons les matrices produites par l'itération avec la
+log-vraisemblance la plus élevée en valeur absolue, nous obtenons:
+
+\begin{itemize}
+    \item Matrice de transitions:
+        \begin{equation}\label{eq:trans2}
+            P =
+            \begin{pmatrix*}
+                0.7263 & 0.2737 \\
+                0.1353 & 0.8647
+            \end{pmatrix*}
+        \end{equation}
+
+    \item Matrice d'émissions:
+        \begin{equation}\label{eq:emis2}
+            Q =
+            \begin{pmatrix*}
+                0.2450 & 0.3526 & 0.0683 & 0.3341 \\
+                0.2473 & 0.3498 & 0.0686 & 0.3343
+            \end{pmatrix*}
+        \end{equation}
+\end{itemize}
+
+Ces résultats sont à comparer avec les résultats empiriques obtenus dans
+~\ref{eq:trans} et ~\ref{eq:emis}. On peut remarquer que l'on obtient une
+matrice de transitions très proche de la matrice de transitions empirique. De
+plus, on voit que les probabilités d'émissions tendent vers les probabilités
+empiriques de chaque type de temps. En effet, elles sont:
+
+\begin{table}[H]
+    \begin{center}
+        \centering
+        \captionsetup{justification=centering}
+        \caption{\label{tab:proba}Comparaison entre les probabilités empiriques et conditionnelles obtenues}
+        \begin{tabular}{|c|c|c|c|}
+            \hline
+            Temps & $\mathbb{P}(\text{temps})$ & \vtop{\hbox{\strut $\mathbb{P}(\text{temps } |$}\hbox{\strut $\text{basse p})$}} & \vtop{\hbox{\strut $\mathbb{P}(\text{temps } |$}\hbox{\strut $\text{haute p})$}} \\
+            \hline
+            Nuage & 0.2459 & 0.2450 & 0.2473 \\
+            Pluie & 0.3497 & 0.3526 & 0.3498 \\
+            Neige & 0.0683 & 0.0683 & 0.0686 \\
+            Soleil & 0.3333 & 0.3341 & 0.3343 \\
+            \hline
+        \end{tabular}
+    \end{center}
+\end{table}
+
+Ce résultat nous permet d'avancer que la pression n'est pas très explicative du
+temps observé étant donné que si l'on en croit notre modèle la pression (qu'elle
+soit haute ou basse) n'a pas d'effet sur les probabilités d'observer chaque type
+de temps.
+
+On peut illuster notre modèle appris à partir de la séquence de temps observée
+comme pour notre modèle empirique ~\ref{fig:empiricalHmm}.
+
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[width=0.5\textwidth]{builtHmm.png}
+        \centering
+        \captionsetup{justification=centering}
+        \caption{\label{fig:builtHmm}Modèle de Markov caché construit}
+    \end{center}
+\end{figure}
+
+Cet algorithme a été développé dans les fonctions \emph{baumWelch.sci},
+\emph{filt.sci} et \emph{smoother.sci} grâce à \cite{garivier}.
 
 %-------------------------------------------------------------------------------
 
 \section{Conclusion}\label{sec:conclu}
 
-- aucune connaissance => modèle pas trop mal
-- plus d'états cachés (resegmentation) => meilleur modèle
-- ajouts d'autres variables explicatives comme la température et états combinés
-genre (haute presion + basse température)
+En conclusion, malgré notre connaissance très limité du domaine météorologique
+nous avons pu mettre en place un modèle de Markov caché qui semble avoir des
+performances respectables.
+
+En revanche, après cette introduction aux modèles de Markov cachés, il aurait
+été intéressant d'améliorer notre modèle en introduisant plus d'états cachés
+soit en resegmentant la variable de pression (avec par exemple: basse pression,
+pression moyenne et haute pression), ou en introduisant de nouvelles variables.
+Par exemple, on aurait pu tenir compte de la température et avoir l'ensemble
+d'états cachés suivant:
+
+\begin{equation}
+    \begin{split}
+        E = \{&\text{basse pression et basse température}, \\
+        & \text{basse pression et température moyenne},   \\
+        & \text{basse pression et haute température},     \\
+        & \text{pression moyenne et basse température}    \\
+        & \text{pression moyenne et température moyenne}, \\
+        & \text{pression moyenne et haute température},   \\
+        & \text{haute pression et basse température}      \\
+        & \text{haute pression et température moyenne},   \\
+        & \text{haute pression et haute température}\}     \\
+    \end{split}
+\end{equation}
 
 %-------------------------------------------------------------------------------
 
-\begin{thebibliography}{99}
-    \bibitem{mon:garivier}
+\begin{thebibliography}{9}
+    \bibitem{garivier}
         Aurélien Garivier
         \newblock The Baum-Welch algorithm for hidden Markov Models
         \newblock {\em Disponible en ligne à \href{http://www.math.univ-toulouse.fr/~agarivie/Telecom/code/index.php}{cette URL}.}
